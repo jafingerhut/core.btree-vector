@@ -34,9 +34,7 @@ sequence of child nodes.  There are no cycles in the parent-child
 relationships, i.e. no node can be its own parent, grandparent, or
 ancestor of any kind.
 
-![Rooted ordered tree](images/rooted-ordered-tree.png?s=100)
-
-<img src="images/rooted-ordered-tree.png" alt="Rooted ordered tree" width="400">
+<img src="images/rooted-ordered-tree.png" alt="Rooted ordered tree" width="600">
 
 Rooted trees are often drawn with edges (i.e. lines) indicating
 parent-child relationships.  In this document, all such trees will be
