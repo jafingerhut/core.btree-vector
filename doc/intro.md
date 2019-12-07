@@ -16,8 +16,8 @@ does, too.
 TBD: There are likely better introductions to invariants for simple
 data structures to learn about this topic for the first time, but one
 source I found after a brief Internet search is [Lecture Notes on Data
-Structure Invariants]
-https://www.cs.cmu.edu/~fp/courses/15122-f10/lectures/12-dsinvs.pdf)
+Structure
+Invariants](https://www.cs.cmu.edu/~fp/courses/15122-f10/lectures/12-dsinvs.pdf)
 from a course given at Carnegie Mellon University.
 
 
@@ -34,7 +34,7 @@ sequence of child nodes.  There are no cycles in the parent-child
 relationships, i.e. no node can be its own parent, grandparent, or
 ancestor of any kind.
 
-![Rooted ordered tree](images/rooted-ordered-tree.png)
+![Rooted ordered tree](images/rooted-ordered-tree.png | width=600)
 
 Rooted trees are often drawn with edges (i.e. lines) indicating
 parent-child relationships.  In this document, all such trees will be
