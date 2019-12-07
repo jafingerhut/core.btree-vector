@@ -36,6 +36,8 @@ ancestor of any kind.
 
 ![Rooted ordered tree](images/rooted-ordered-tree.png?s=100)
 
+<img src="images/rooted-ordered-tree.png" alt="Rooted ordered tree" width="400">
+
 Rooted trees are often drawn with edges (i.e. lines) indicating
 parent-child relationships.  In this document, all such trees will be
 drawn with the root node at the top, with child nodes always appearing
