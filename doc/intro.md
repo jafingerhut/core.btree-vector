@@ -3,17 +3,19 @@
 
 ## Using invariants to develop programs
 
-One good way to reason carefully about operations on a data structure
-is to explicitly state conditions that all correct examples of the
-data structure satisfy, often called an invariant, meaning
-"unchanging", in the sense that the condition remains true always.
+One good way to reason carefully about all possible behaviors of a
+program is by stating, and mathematically proving, conditions that
+must be true at all times during the program's execution.  Such a
+condition is called an _invariant_, meaning "unchanging", in the sense
+that the condition remains true always.
 
-Then, show how every operation on that data structure "maintains the
-invariant", i.e. if the initial data structure given as input(s) to
-the operations satisfy the invariant, then the final data structure
-does, too.
+When implementing a data structure, such invariants are often stated
+based upon the "shape" and contents of the data structure.  Then, show
+how every operation on that data structure "maintains the invariant",
+i.e. if the initial data structure given as input(s) to the operations
+satisfy the invariant, then the final data structure does, too.
 
-TBD: There are likely better introductions to invariants for simple
+Aside: There are likely better introductions to invariants for simple
 data structures to learn about this topic for the first time, but one
 source I found after a brief Internet search is [Lecture Notes on Data
 Structure
@@ -62,21 +64,23 @@ same depth from the root.
 
 ## Invariants for B-trees
 
-B trees and B+ trees were originally developed to implement data
-structures with arbitrary key/value pairs, where the keys can be
-sorted by a [total order](https://en.wikipedia.org/wiki/Total_order).
+[B-trees](https://en.wikipedia.org/wiki/B-tree) and [B+
+trees](https://en.wikipedia.org/wiki/B%2B_tree) were originally
+developed to implement data structures with arbitrary key/value pairs,
+where the keys can be sorted by a [total
+order](https://en.wikipedia.org/wiki/Total_order).
 
 As implemented by the core.btree-vector library, all of the keys are
 integer indices, ranging from 0 up to n-1, where n is the number of
 elements in the vector.  This is a fairly special case for B trees,
-and leads to some slight simplifications in the data structure.
+and leads to some simplifications in the data structure.
 
 Typically when B trees are used, removing one key/value pair leaves
 all of the remaining key/value pairs unchanged.  With the
-core.btree-vector, if we want to take a vector with 10 elements with
-keys 0 through 9, and take a sub-vector starting from index 3 up
-through 9, inclusive, the returned vector should have 7 elements with
-keys 0 through 6.
+core.btree-vector, if start with a vector with 10 elements, where the
+keys range from 0 through 9, and take a sub-vector starting from index
+3 up through 9, inclusive, the returned vector should have 7 elements
+with keys 0 through 6.
 
 Similarly, when concatenating two vectors, the keys of the first
 vector remain the same, but the keys of the second vector are all
@@ -96,8 +100,9 @@ what I will describe here is slightly closer to B+ trees, in that the
 elements of the vector are stored only in the leaves, and the keys are
 stored in non-leaf tree nodes.
 
-Choose an "order", also called a branching factor, B, at least 3.
-Every node in the tree will have at most B children.
+Choose an "order" value B, also called a branching factor, an integer
+that is at least 3.  Every node in the tree will have at most B
+children.
 
 A special case not mentioned below is an empty vector.  The exact
 representation of an empty vector is not a very big deal -- e.g.
