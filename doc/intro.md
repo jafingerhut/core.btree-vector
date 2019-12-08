@@ -28,31 +28,36 @@ structures, feel free to skip this section.
 
 A rooted ordered tree is a tree where there is a distinguished _root
 node_.  The root node has a (possibly empty) ordered sequence of child
-nodes, all of which are distinct from the root node .  Every other
-node (if there are any others) also has a possibly empty ordered
-sequence of child nodes.  There are no cycles in the parent-child
-relationships, i.e. no node can be its own parent, grandparent, or
-ancestor of any kind.
+nodes, where all of those child nodes are distinct from the root node.
+If there are any nodes besides the root, each of them also has a
+possibly empty ordered sequence of child nodes.  There are no cycles
+in the parent-child relationships, i.e. no node can be its own parent,
+grandparent, or ancestor of any kind.
+
+The figure below gives one example of a rooted ordered tree.  Rooted
+trees are often drawn with edges (i.e. lines) indicating parent-child
+relationships.  In this document, all such trees will be drawn with
+the root node at the top, with child nodes always appearing lower than
+their parents.
 
 <img src="images/rooted-ordered-tree.png" alt="Rooted ordered tree" width="600" align="middle">
 
-Rooted trees are often drawn with edges (i.e. lines) indicating
-parent-child relationships.  In this document, all such trees will be
-drawn with the root node at the top, with child nodes always appearing
-lower than their parents.  The ordering of child nodes relative to
-each other is indicated by their left-to-right ordering in the
-drawing, with earlier children to the left of later children.
-
-TBD: Show a figure of a rooted ordered tree with leaves at different
-depths.  Mention that most kinds of trees described later will have
-additional restrictions on them, including that all leaves must be at
-the same depth from the root.
+Among child nodes that have the same parent, their relative order will
+be indicated by their left-to-right ordering in the drawing.
 
 A node with no children is called a leaf node.  There is a unique path
 from the root to every other node in the tree.
 
-The depth of the root node is defined to be 0.  All of the root's
-children have depth 1, and in general
+We define the _depth_ of the root node to be 0.  All of the root's
+children have depth 1, and in general the depth of a non-root node is
+equal to the depth of its parent, plus 1.
+
+<img src="images/rooted-ordered-tree-showing-depths.png" alt="Rooted ordered tree showing depths" width="600" align="middle">
+
+Most kinds of trees described later in this document will have
+additional restrictions on their structure.  An example of an
+additional restriction we will see is: all leaf nodes must be at the
+same depth from the root.
 
 
 ## Invariants for B-trees
