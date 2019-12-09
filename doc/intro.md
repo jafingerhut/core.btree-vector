@@ -120,21 +120,24 @@ keep mentioning it.
 
 ### B-tree examples, and consequences of the invariants
 
-If there are less than 2b vector elements, they are all direct
-children of the root, at depth 1.  Such a tree has height 1.  There
-are no other tree structures that satisfy all if the invariants for
-less than 2b vector elements.
+These example B-trees have max branching B=5, and b=3.  The example
+elements shown are the first few prime numbers, in increasing order.
+
+<img src="images/b-tree-order-5-few-elements.png" alt="Small B trees with order 5" width="800" align="middle">
+
+For B=5 and b=3, those are the _only_ tree structures that are legal
+for the given number of elements.  In general, if there are less than
+2b vector elements, all elements must be direct children of the root,
+at depth 1.  There are no other tree structures that satisfy all if
+the invariants for so few elements.
 
 There are at least two tree structures that satisfy the invariants for
-2b vector elements.  It is reasonable for an implementation to allow
-any of the the tree structures to be used, as long as they satisfy all
-of the invariants.
+2b+1 or more elements, and as the number of elements grows, the number
+of tree structures satisfying the conditions grows exponentially.  It
+is reasonable for an implementation to allow any tree structure that
+satisfies all of the invariants to be used.
 
-
-
-If there are more than B vector elements, they cannot all be direct
-children of the root.  Instead they are all at the same depth from the
-root, at least 2.
+TBD: Define _height_.
 
 We will call the parent nodes of leaf nodes _array nodes_ (TBD: maybe
 a phrase to motivate this choice here).  If the tree has height 1,
