@@ -120,8 +120,9 @@ keep mentioning it.
 
 ### B-tree examples, and consequences of the invariants
 
-These example B-trees have max branching B=5, and b=3.  The example
-elements shown are the first few prime numbers, in increasing order.
+These example B-trees have max branching B=5, and minimum branch
+factor b=3.  The example elements shown are the first few prime
+numbers, in increasing order.
 
 <img src="images/b-tree-order-5-few-elements.png" alt="Small B trees with order 5" width="800" align="middle">
 
@@ -132,10 +133,14 @@ at depth 1.  There are no other tree structures that satisfy all if
 the invariants for so few elements.
 
 There are at least two tree structures that satisfy the invariants for
-2b+1 or more elements, and as the number of elements grows, the number
-of tree structures satisfying the conditions grows exponentially.  It
-is reasonable for an implementation to allow any tree structure that
-satisfies all of the invariants to be used.
+2b+1 or more elements.  As the number of elements grows, the number of
+tree structures satisfying the invariants grows exponentially.  It is
+reasonable for a B tree implementation to allow any tree structure to
+be used, as long as it satisfies all of the invariants.
+
+The 3 B-trees below are all legal for 9 elements, with B=5 and b=3.
+
+<img src="images/b-tree-order-5-with-9-elements.png" alt="B trees with order 5 and 9 elements" width="800" align="middle">
 
 TBD: Define _height_.
 
