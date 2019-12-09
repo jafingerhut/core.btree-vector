@@ -37,106 +37,108 @@ in the parent-child relationships, i.e. no node can be its own parent,
 grandparent, or ancestor of any kind.
 
 The figure below gives one example of a rooted ordered tree.  Rooted
-trees are often drawn with edges (i.e. lines) indicating parent-child
-relationships.  In this document, all such trees will be drawn with
-the root node at the top, with child nodes always appearing lower than
-their parents.
+trees are typically drawn with edges (i.e. lines) indicating
+parent-child relationships.  In this document, all such trees will be
+drawn with the root node at the top, with child nodes always appearing
+lower than their parents.
 
 <img src="images/rooted-ordered-tree.png" alt="Rooted ordered tree" width="600" align="middle">
 
 Among child nodes that have the same parent, their relative order will
 be indicated by their left-to-right ordering in the drawing.
 
-A node with no children is called a leaf node.  There is a unique path
-from the root to every other node in the tree.
+A node with no children is called a _leaf_ node.  A node with at least
+one child is called an _internal_ node.  There is a unique path from
+the root to every other node in the tree.
 
 We define the _depth_ of the root node to be 0.  All of the root's
-children have depth 1, and in general the depth of a non-root node is
-equal to the depth of its parent, plus 1.
+children have depth 1.  The depth of a non-root node is equal to the
+depth of its parent, plus 1.
 
 <img src="images/rooted-ordered-tree-showing-depths.png" alt="Rooted ordered tree showing depths" width="600" align="middle">
 
 Most kinds of trees described later in this document will have
-additional restrictions on their structure.  An example of an
-additional restriction we will see is: all leaf nodes must be at the
-same depth from the root.
+additional restrictions on their structure.
 
 
 ## Invariants for B-trees
 
 [B-trees](https://en.wikipedia.org/wiki/B-tree) and [B+
 trees](https://en.wikipedia.org/wiki/B%2B_tree) were originally
-developed to implement data structures with arbitrary key/value pairs,
-where the keys can be sorted by a [total
-order](https://en.wikipedia.org/wiki/Total_order).
+developed to implement data structures like a Clojure sorted map,
+representing a set of key/value pairs, where the keys can be sorted by
+a [total order](https://en.wikipedia.org/wiki/Total_order).
 
 As implemented by the core.btree-vector library, all of the keys are
 integer indices, ranging from 0 up to n-1, where n is the number of
 elements in the vector.  This is a fairly special case for B trees,
 and leads to some simplifications in the data structure.
 
-Typically when B trees are used, removing one key/value pair leaves
-all of the remaining key/value pairs unchanged.  With the
-core.btree-vector, if start with a vector with 10 elements, where the
-keys range from 0 through 9, and take a sub-vector starting from index
-3 up through 9, inclusive, the returned vector should have 7 elements
-with keys 0 through 6.
+I do not know all differences between B-trees and B+ trees, but I
+believe that what I will describe here is closer to B+ trees, in that
+the elements of the vector are stored only in the leaves, and the keys
+are stored in non-leaf tree nodes.
 
-Similarly, when concatenating two vectors, the keys of the first
-vector remain the same, but the keys of the second vector are all
-larger in the returned vector than they were in the second input
-vector (unless the first vector was empty).
-
-Thus it is important that if we do not want to require all sub-vector
-and concatenation operations to take linear time, the key values
-should not be explicitly stored as absolute values.  Instead they are
-stored as relative values in each sub-tree, relative to the number of
-elements that exist in earlier subtrees.
-
-I do not know all differences between
-[B-trees](https://en.wikipedia.org/wiki/B-tree) and [B+
-trees](https://en.wikipedia.org/wiki/B%2B_tree), but I suspect that
-what I will describe here is slightly closer to B+ trees, in that the
-elements of the vector are stored only in the leaves, and the keys are
-stored in non-leaf tree nodes.
-
-Choose an "order" value B, also called a branching factor, an integer
-that is at least 3.  Every node in the tree will have at most B
-children.
-
-A special case not mentioned below is an empty vector.  The exact
-representation of an empty vector is not a very big deal -- e.g.
-storing a count field of 0 in the object representing the vector is a
-good way.  There might be a root node with no children in the
-implementation, but we will not consider that case when describing the
-invariants that trees representing non-empty vectors must satisfy.  If
-we did, we would frequently be mentioning that special case, and I
-would prefer not to keep mentioning it.
+The following conditions for a B tree's structure apply for any
+maximum branch factor B that is an integer value at least 3.
 
 b=ceiling(B/2) is B divided by 2, then rounded up to the next integer
 if the result is a fraction.  Since B >= 3, b is always at least 2.
-With one exception, every node in the tree has at least b children.
 
-The exception is:
+The invariants that a B tree must satisfy are:
 
-+ The root node is allowed to have less than b children.  If there is
-  only 1 element in the vector, the root has only 1 child (which is
-  the vector element), otherwise the root always has at least 2
-  children.
+(I1) It is a rooted ordered tree.
 
-All vector elements are leaves in the tree, and all are at the same
-depth in the tree.  If there are less than B vector elements, they are
-all direct children of the root, at depth 1.  Such a tree has height
-1.
+(I2) All values are stored in leaf nodes.
+
+(I3) All leaf nodes are at the same depth as each other.
+
+(I4) The order of all values in a tree is the same as the order that
+     the leaf nodes are traversed in a depth-first tree traversal,
+     where all children of a node are visited in the same order that
+     they are children of their parent.
+
+(I5) All nodes have at most B children.
+
+(I6) All non-root internal nodes have at least b children.  The root
+     node has at least 2 children, unless there is only one value in
+     the entire tree, in which case the root has 1 child.
+
+For now we will leave the value of B unspecified, and only pick a
+particular value for use in examples, and for the core.btree-vector
+implementation.
+
+Aside: A special case not mentioned very often is a B tree with no
+values, i.e. an empty set of values.  The exact representation of an
+empty B tree is not a big deal -- e.g.  storing a count field of 0 in
+the object is a good way.  There might be a root node with no children
+in the implementation, but we will not usually consider that case
+explicitly everywhere in this document.  If we did, we would
+frequently be mentioning that special case, and I would prefer not to
+keep mentioning it.
+
+
+### B-tree examples, and consequences of the invariants
+
+If there are less than 2b vector elements, they are all direct
+children of the root, at depth 1.  Such a tree has height 1.  There
+are no other tree structures that satisfy all if the invariants for
+less than 2b vector elements.
+
+There are at least two tree structures that satisfy the invariants for
+2b vector elements.  It is reasonable for an implementation to allow
+any of the the tree structures to be used, as long as they satisfy all
+of the invariants.
+
+
 
 If there are more than B vector elements, they cannot all be direct
 children of the root.  Instead they are all at the same depth from the
 root, at least 2.
 
-There is always a root node, which is at depth 0.  The root and all
-other non-leaf nodes are called "internal nodes".  The parent nodes of
-vector elements I will call "array nodes".  If the tree has height 1,
-then the the only non-leaf node, the root node, is an array node.
+We will call the parent nodes of leaf nodes _array nodes_ (TBD: maybe
+a phrase to motivate this choice here).  If the tree has height 1,
+then the only non-leaf node, the root node, is an array node.
 
 TBD: Compare this terminology with that used in Clojure source code
 for PersistentVector and Vector.
@@ -177,3 +179,26 @@ Define the "right fringe" of a tree as the following set of nodes.
   child is also in the right fringe.
 
 If the root node has any children, then 
+
+
+### Why store relative index values instead of absolute ones?
+
+TBD: Not sure where is best to introduce this text.
+
+Typically when B trees are used, removing one key/value pair leaves
+all of the remaining key/value pairs unchanged.  With the
+core.btree-vector, if start with a vector with 10 elements, where the
+keys range from 0 through 9, and take a sub-vector starting from index
+3 up through 9, inclusive, the returned vector should have 7 elements
+with keys 0 through 6.
+
+Similarly, when concatenating two vectors, the keys of the first
+vector remain the same, but the keys of the second vector are all
+larger in the returned vector than they were in the second input
+vector (unless the first vector was empty).
+
+Thus it is important that if we do not want to require all sub-vector
+and concatenation operations to take linear time, the key values
+should not be explicitly stored as absolute values.  Instead they are
+stored as relative values in each sub-tree, relative to the number of
+elements that exist in earlier subtrees.
