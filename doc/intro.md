@@ -61,7 +61,10 @@ Most kinds of trees described later in this document will have
 additional restrictions on their structure.
 
 
-## Invariants for B-trees
+## B-trees
+
+
+### Invariants for B-trees
 
 [B-trees](https://en.wikipedia.org/wiki/B-tree) and [B+
 trees](https://en.wikipedia.org/wiki/B%2B_tree) were originally
@@ -74,18 +77,20 @@ integer indices, ranging from 0 up to n-1, where n is the number of
 elements in the vector.  This is a fairly special case for B trees,
 and leads to some simplifications in the data structure.
 
-I do not know all differences between B-trees and B+ trees, but I
-believe that what I will describe here is closer to B+ trees, in that
-the elements of the vector are stored only in the leaves, and the keys
-are stored in non-leaf tree nodes.
+I do not know all differences between B-trees and B+ trees.  I will
+refer to what is being described here as B-trees, but mentally
+substitute "B+ trees" if that is more precise.  The values in the
+trees described here are stored only in the leaf nodes, and the keys
+are stored in non-leaf nodes, or optimized away in some special cases
+where they need not be stored at all.
 
-The following conditions for a B tree's structure apply for any
+The following conditions for a B-tree's structure apply for any
 maximum branch factor B that is an integer value at least 3.
 
 b=ceiling(B/2) is B divided by 2, then rounded up to the next integer
 if the result is a fraction.  Since B >= 3, b is always at least 2.
 
-The invariants that a B tree must satisfy are:
+The invariants that a B-tree must satisfy are:
 
 (I1) It is a rooted ordered tree.
 
@@ -94,7 +99,8 @@ The invariants that a B tree must satisfy are:
 (I3) All leaf nodes are at the same depth as each other.
 
 (I4) The order of all values in a tree is the same as the order that
-     the leaf nodes are traversed in a depth-first tree traversal,
+     the leaf nodes are traversed in a [depth-first
+     traversal](https://en.wikipedia.org/wiki/Depth-first_search),
      where all children of a node are visited in the same order that
      they are children of their parent.
 
@@ -104,9 +110,17 @@ The invariants that a B tree must satisfy are:
      node has at least 2 children, unless there is only one value in
      the entire tree, in which case the root has 1 child.
 
-For now we will leave the value of B unspecified, and only pick a
+For now we will leave the value of B arbitrary, and only pick a
 particular value for use in examples, and for the core.btree-vector
 implementation.
+
+For trees satisfying (I3), we can define the _height_ of a node as the
+number of edges in any path from the node down to a leaf node.  For
+any any node in a tree, there is only one such number.  The height of
+all leaf nodes is 0, the height of all parents of leaf nodes is 1, and
+in general for all internal nodes, their height is equal to the height
+of any of their children (which will be the same as each other), plus
+1.
 
 Aside: A special case not mentioned very often is a B tree with no
 values, i.e. an empty set of values.  The exact representation of an
@@ -138,11 +152,10 @@ tree structures satisfying the invariants grows exponentially.  It is
 reasonable for a B tree implementation to allow any tree structure to
 be used, as long as it satisfies all of the invariants.
 
-The 3 B-trees below are all legal for 9 elements, with B=5 and b=3.
+The three B-trees below are all legal for 9 elements, with B=5 and
+b=3.
 
 <img src="images/b-tree-order-5-with-9-elements.png" alt="B trees with order 5 and 9 elements" width="800" align="middle">
-
-TBD: Define _height_.
 
 We will call the parent nodes of leaf nodes _array nodes_ (TBD: maybe
 a phrase to motivate this choice here).  If the tree has height 1,
