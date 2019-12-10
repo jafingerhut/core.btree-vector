@@ -140,7 +140,7 @@ be used, as long as it satisfies all of the invariants.
 
 The 3 B-trees below are all legal for 9 elements, with B=5 and b=3.
 
-<img src="images/b-tree-order-5-with-9-elements.png" alt="B trees with order 5 and 9 elements" width="500" align="middle">
+<img src="images/b-tree-order-5-with-9-elements.png" alt="B trees with order 5 and 9 elements" width="800" align="middle">
 
 TBD: Define _height_.
 
