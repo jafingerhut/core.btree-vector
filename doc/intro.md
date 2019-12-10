@@ -138,7 +138,7 @@ These example B-trees have max branching B=5, and minimum branch
 factor b=3.  The example elements shown are the first few prime
 numbers, in increasing order.
 
-<img src="images/b-tree-order-5-few-elements.png" alt="Small B trees with order 5" width="800" align="middle">
+<img src="images/b-tree-order-5-few-elements.png" alt="Small B trees with order 5" width="600" align="middle">
 
 For B=5 and b=3, those are the _only_ tree structures that are legal
 for the given number of elements.  In general, if there are less than
