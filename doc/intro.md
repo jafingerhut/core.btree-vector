@@ -143,13 +143,13 @@ numbers, in increasing order.
 For B=5 and b=3, those are the _only_ tree structures that are legal
 for the given number of elements.  In general, if there are less than
 2b vector elements, all elements must be direct children of the root,
-at depth 1.  There are no other tree structures that satisfy all if
+at depth 1.  There are no other tree structures that satisfy all of
 the invariants for so few elements.
 
 There are at least two tree structures that satisfy the invariants for
 2b+1 or more elements.  As the number of elements grows, the number of
 tree structures satisfying the invariants grows exponentially.  It is
-reasonable for a B tree implementation to allow any tree structure to
+reasonable for a B-tree implementation to allow any tree structure to
 be used, as long as it satisfies all of the invariants.
 
 The three B-trees below are all legal for 9 elements, with B=5 and
