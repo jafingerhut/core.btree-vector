@@ -116,11 +116,10 @@ implementation.
 
 For trees satisfying (I3), we can define the _height_ of a node as the
 number of edges in any path from the node down to a leaf node.  For
-any any node in a tree, there is only one such number.  The height of
-all leaf nodes is 0, the height of all parents of leaf nodes is 1, and
-in general for all internal nodes, their height is equal to the height
-of any of their children (which will be the same as each other), plus
-1.
+any node in a tree satisfying (I3), there is only one such number.
+The height of all leaf nodes is 0, and for any internal node, its
+height is equal to the height of any of its children (which all have
+the same height as each other), plus 1.
 
 Aside: A special case not mentioned very often is a B tree with no
 values, i.e. an empty set of values.  The exact representation of an
@@ -177,7 +176,7 @@ used here.
 ## Invariants for Clojure's PersistentVector implementation
 
 Clojure's `PersistentVector` implementation satisfies some invariants
-that are similar to the ones described in the previus section.
+that are similar to the ones described in the previous section.
 
 Every vector element is stored either as a leaf in a tree, or in an
 array of up to 32 elements called the "tail".  The tail array always
@@ -222,4 +221,4 @@ Thus it is important that if we do not want to require all sub-vector
 and concatenation operations to take linear time, the key values
 should not be explicitly stored as absolute values.  Instead they are
 stored as relative values in each sub-tree, relative to the number of
-elements that exist in earlier subtrees.
+elements that exist in earlier sub-trees.
