@@ -151,15 +151,17 @@ These example B-trees have max branching B=5, and minimum branch
 factor b=3.  Each represents a subset (or all of) this collection of
 key/value pairs:
 
-+ key 2, value "Ellis"
-+ key 3, value "John"
-+ key 5, value "Hank"
-+ key 7, value "Dagny"
-+ key 11, value "Hugh"
-+ key 13, value "Midas"
-+ key 17, value "Eddie"
-+ key 19, value "Ragnar"
-+ key 23, value "Quentin"
+| Key | Value     |
+| --- | --------- |
+|   2 | "Ellis"   |
+|   3 | "John"    |
+|   5 | "Hank"    |
+|   7 | "Dagny"   |
+|  11 | "Hugh"    |
+|  13 | "Midas"   |
+|  17 | "Eddie"   |
+|  19 | "Ragnar"  |
+|  23 | "Quentin" |
 
 <img src="images/b-tree-kvs-order-5-few-elements.png" alt="Small B-trees with order 5" width="800" align="middle">
 
@@ -178,7 +180,7 @@ be used, as long as it satisfies all of the invariants.
 The three B-trees below are all legal for 9 elements, with B=5 and
 b=3.
 
-<img src="images/b-tree-kvs-order-5-with-9-elements.png" alt="B-trees with order 5 and 9 elements" width="900" align="middle">
+<img src="images/b-tree-kvs-order-5-with-9-elements.png" alt="B-trees with order 5 and 9 elements" width="800" align="middle">
 
 
 ## Invariants for Clojure's PersistentVector implementation
