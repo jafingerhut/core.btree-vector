@@ -161,7 +161,7 @@ key/value pairs:
 + key 19, value "Ragnar"
 + key 23, value "Quentin"
 
-<img src="images/b-tree-kvs-order-5-few-elements.png" alt="Small B-trees with order 5" width="600" align="middle">
+<img src="images/b-tree-kvs-order-5-few-elements.png" alt="Small B-trees with order 5" width="800" align="middle">
 
 For B=5 and b=3, those are the _only_ tree structures that are legal
 for the given number of elements.  In general, if there are less than
@@ -178,7 +178,7 @@ be used, as long as it satisfies all of the invariants.
 The three B-trees below are all legal for 9 elements, with B=5 and
 b=3.
 
-<img src="images/b-tree-kvs-order-5-with-9-elements.png" alt="B-trees with order 5 and 9 elements" width="800" align="middle">
+<img src="images/b-tree-kvs-order-5-with-9-elements.png" alt="B-trees with order 5 and 9 elements" width="900" align="middle">
 
 
 ## Invariants for Clojure's PersistentVector implementation
