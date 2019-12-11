@@ -67,18 +67,23 @@ additional restrictions on their structure.
 ### Invariants for B-trees
 
 [B-trees](https://en.wikipedia.org/wiki/B-tree) and [B+
-trees](https://en.wikipedia.org/wiki/B%2B_tree) were originally
-developed to implement data structures like a Clojure sorted map,
-representing a set of key/value pairs, where the keys can be sorted by
-a [total order](https://en.wikipedia.org/wiki/Total_order).
+trees](https://en.wikipedia.org/wiki/B%2B_tree) were developed to
+implement data structures like a Clojure sorted map.  That is, they
+can represent a set of key/value pairs where all keys are distinct,
+and can be sorted by a [total
+order](https://en.wikipedia.org/wiki/Total_order), e.g. integers by
+the order `<=`, or strings sorted lexicographically.  The values can
+be arbitrary, i.e. they need not be distinct, and need not have any
+sorted order relative to each other.  B-trees support efficient lookup
+of the value associated with a given key, and many other operations.
 
-As implemented by the core.btree-vector library, all of the keys are
-integer indices, ranging from 0 up to n-1, where n is the number of
-elements in the vector.  This is a fairly special case for B trees,
-and leads to some simplifications in the data structure.
+We will begin our discussion of B-trees this way, and then later
+specialize them for use in representing vectors, where the keys are
+restricted to be integer indices in the range 0 up to n-1, where n is
+the number of elements in the vector.
 
-I do not know all differences between B-trees and B+ trees.  I will
-refer to what is being described here as B-trees, but mentally
+Aside: I do not know all differences between B-trees and B+ trees.  I
+will refer to what is being described here as B-trees, but mentally
 substitute "B+ trees" if that is more precise.  The values in the
 trees described here are stored only in the leaf nodes, and the keys
 are stored in non-leaf nodes, or optimized away in some special cases
@@ -94,21 +99,30 @@ The invariants that a B-tree must satisfy are:
 
 (I1) It is a rooted ordered tree.
 
-(I2) All values are stored in leaf nodes.
+(I2) All values are stored in leaf nodes.  The key associated with
+     each value is also stored with the value.
 
 (I3) All leaf nodes are at the same depth as each other.
 
-(I4) The order of all values in a tree is the same as the order that
-     the leaf nodes are traversed in a [depth-first
+(I4) The order of all key/value pairs in a tree is the same as the
+     order that the leaf nodes are traversed in a [depth-first
      traversal](https://en.wikipedia.org/wiki/Depth-first_search),
      where all children of a node are visited in the same order that
-     they are children of their parent.
+     they are children of their parent.  The order of keys must be
+     consistent with the total order specified for the keys.
 
 (I5) All nodes have at most B children.
 
 (I6) All non-root internal nodes have at least b children.  The root
      node has at least 2 children, unless there is only one value in
      the entire tree, in which case the root has 1 child.
+
+(I7) All internal nodes with A >= 2 children contain A-1 keys.  If we
+     number the children, in order, from c[0] up to c[A-1], and the
+     keys from k[1] up to k[A-1], then for all j in the range [1,
+     A-1], key k[j] must be strictly greater than all keys in the
+     subtree of child c[j-1], and less than or equal to all keys in
+     the subtree of child c[j].
 
 For now we will leave the value of B arbitrary, and only pick a
 particular value for use in examples, and for the core.btree-vector
@@ -121,9 +135,9 @@ The height of all leaf nodes is 0, and for any internal node, its
 height is equal to the height of any of its children (which all have
 the same height as each other), plus 1.
 
-Aside: A special case not mentioned very often is a B tree with no
+Aside: A special case not mentioned very often is a B-tree with no
 values, i.e. an empty set of values.  The exact representation of an
-empty B tree is not a big deal -- e.g.  storing a count field of 0 in
+empty B-tree is not a big deal -- e.g.  storing a count field of 0 in
 the object is a good way.  There might be a root node with no children
 in the implementation, but we will not usually consider that case
 explicitly everywhere in this document.  If we did, we would
@@ -134,10 +148,20 @@ keep mentioning it.
 ### B-tree examples, and consequences of the invariants
 
 These example B-trees have max branching B=5, and minimum branch
-factor b=3.  The example elements shown are the first few prime
-numbers, in increasing order.
+factor b=3.  Each represents a subset (or all of) this collection of
+key/value pairs:
 
-<img src="images/b-tree-order-5-few-elements.png" alt="Small B trees with order 5" width="600" align="middle">
++ key 2, value "Ellis"
++ key 3, value "John"
++ key 5, value "Hank"
++ key 7, value "Dagny"
++ key 11, value "Hugh"
++ key 13, value "Midas"
++ key 17, value "Eddie"
++ key 19, value "Ragnar"
++ key 23, value "Quentin"
+
+<img src="images/b-tree-kvs-order-5-few-elements.png" alt="Small B-trees with order 5" width="600" align="middle">
 
 For B=5 and b=3, those are the _only_ tree structures that are legal
 for the given number of elements.  In general, if there are less than
@@ -154,23 +178,7 @@ be used, as long as it satisfies all of the invariants.
 The three B-trees below are all legal for 9 elements, with B=5 and
 b=3.
 
-<img src="images/b-tree-order-5-with-9-elements.png" alt="B trees with order 5 and 9 elements" width="800" align="middle">
-
-We will call the parent nodes of leaf nodes _array nodes_ (TBD: maybe
-a phrase to motivate this choice here).  If the tree has height 1,
-then the only non-leaf node, the root node, is an array node.
-
-TBD: Compare this terminology with that used in Clojure source code
-for PersistentVector and Vector.
-
-TBD: Try to minimize the number of differences in terminology used for
-different tree data structures that this library deals with, and make
-it clear up front and on first definition what the terminology
-differences are as used here, versus in some popular reference on tree
-terminology, perhaps the Wikipedia article on tree data structures, or
-CLRS.  If I give Niklas L'orange's articles on PersistentVector as a
-reference, reread it for terminology and any differences to what is
-used here.
+<img src="images/b-tree-kvs-order-5-with-9-elements.png" alt="B-trees with order 5 and 9 elements" width="800" align="middle">
 
 
 ## Invariants for Clojure's PersistentVector implementation
@@ -205,7 +213,7 @@ If the root node has any children, then
 
 TBD: Not sure where is best to introduce this text.
 
-Typically when B trees are used, removing one key/value pair leaves
+Typically when B-trees are used, removing one key/value pair leaves
 all of the remaining key/value pairs unchanged.  With the
 core.btree-vector, if start with a vector with 10 elements, where the
 keys range from 0 through 9, and take a sub-vector starting from index
@@ -222,3 +230,27 @@ and concatenation operations to take linear time, the key values
 should not be explicitly stored as absolute values.  Instead they are
 stored as relative values in each sub-tree, relative to the number of
 elements that exist in earlier sub-trees.
+
+
+# Details to double check later
+
+[TBD: Where to introduce this?]  We will call the parent nodes of leaf
+nodes _array nodes_ (TBD: maybe a phrase to motivate this choice
+here).  If the tree has height 1, then the only non-leaf node, the
+root node, is an array node.
+
+TBD: Compare this terminology with that used in Clojure source code
+for PersistentVector and Vector.
+
+TBD: Try to minimize the number of differences in terminology used for
+different tree data structures that this library deals with, and make
+it clear up front and on first definition what the terminology
+differences are as used here, versus in some popular reference on tree
+terminology, perhaps the Wikipedia article on tree data structures, or
+CLRS.  If I give Niklas L'orange's articles on PersistentVector as a
+reference, reread it for terminology and any differences to what is
+used here.
+
+TBD: Is the invariant that all leaf nodes are at the same depth as
+each other important?  Why?  What would go wrong if we tried to allow
+trees with leaf nodes at different depths?
