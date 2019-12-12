@@ -209,10 +209,10 @@ b=3.
 
 <img src="images/b-tree-kvs-order-5-with-9-elements.png" alt="B-trees with order 5 and 9 elements" width="800" align="middle">
 
-The height of a B-tree is O(log N), where the base is b.  It can be
-slightly less than that if enough nodes have branching factors near B.
-Chapter 3 "RRB-Trees" of Jean Niklas L'orange's thesis contains
-detailed proofs of this and many other results.
+The height of a B-tree is O(log N), where the base of the logarithm is
+b.  It can be slightly less than that if enough nodes have branching
+factors near B.  Chapter 3 "RRB-Trees" of Jean Niklas L'orange's
+thesis contains detailed proofs of this and many other results.
 
 * Jean Niklas L'orange, "Improving RRB-Tree Performance through
   Transience", Master Thesis, 2014,
@@ -263,11 +263,11 @@ The problem with this intermediate step is that the resulting tree T'
 can violate some of the B-tree invariants, in particular invariant
 (I6) that restricts the minimum number of children a node must have.
 
-So, we then "fix up" the tree, such that the final resulting tree
-satisfies all invariants.  The trick is to do so in worst case O(log
-N) time, and prove that the result will always satisfy all of the
-invariants, regardless of what tree T and key K were given for the
-splice operation.
+So, we then "fix up" the tree, such that the final tree satisfies all
+invariants.  The trick is to do so in worst case O(log N) time, and
+prove that the result will always satisfy all of the invariants,
+regardless of what tree T and key K were given for the splice
+operation.
 
 First, observe that in tree T', all internal nodes have the same
 number of children they had in T, except perhaps for some of the nodes
