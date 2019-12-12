@@ -1,5 +1,32 @@
 # Introduction to core.btree-vector
 
+My original motivation for writing this library was to have an
+implementation of an immutable vector that supports O(log N) time
+concatenation operations, worst case, which is significantly faster
+than linear time behavior you get if you evaluate `(into v1 v2)` for
+two Clojure vectors.
+
+These new vectors should still support all existing operations on
+Clojure vectors as efficienctly as Clojure vectors do, or at worst be
+a small constant times slower.
+
+The research papers about the RRB Tree data structure claim that data
+structure provides that, but everything I have read so far on RRB
+Trees leave out some details of implementation that are not clear to
+me how they should be performed, and [all of the RRB Tree
+implementations I have found so
+far](https://github.com/clojure/core.rrb-vector/blob/master/doc/rrb-tree-notes.md)
+have bugs in their operations.  Without clearly stated invariants, it
+can be difficult to approach such an existing implementation and see
+what changes ought to be made that will be correct, or indeed if that
+is even possible while preserving the performance guarantees.
+
+So while this article may be extended to give details on how all
+operations are implemented efficiently, the focus here is on ensuring
+that creating a sub-vector of an existing vector, and creating a
+concatenation of two existing vectors, can be done in worst case O(log
+N) time.
+
 
 ## Using invariants to develop programs
 
@@ -182,6 +209,73 @@ b=3.
 
 <img src="images/b-tree-kvs-order-5-with-9-elements.png" alt="B-trees with order 5 and 9 elements" width="800" align="middle">
 
+The height of a B-tree is O(log N), where the base is b.  It can be
+slightly less than that if enough nodes have branching factors near B.
+Chapter 3 "RRB-Trees" of Jean Niklas L'orange's thesis contains
+detailed proofs of this and many other results.
+
+* Jean Niklas L'orange, "Improving RRB-Tree Performance through
+  Transience", Master Thesis, 2014,
+  [[PDF]](https://hypirion.com/thesis.pdf)
+
+
+### Efficient B-tree split operations
+
+By a split operation, I mean one where you are given a B-tree T and a
+key K that exists in T, and the goal is to return a new B-tree T2 that
+contains only the key/value pairs of T where the key is K or larger,
+in the total order on keys.
+
+By efficient, I mean it runs in time equal to some constant factor
+times the height of the tree T, and that the returned data structure
+satisfies all of the B-tree invariants.
+
+Note: The corresponding operation that returns a tree with all keys K
+or smaller is just the "mirror image" of the split operation above.
+If we can make one of them work efficiently, the other will work, too.
+And if both of those operations work efficiently, one followed by the
+other can be used to achieve the effect of a "sub range" operation,
+which given a tree T and a minimum key K1 and a maximum key K2,
+returns a tree T2, that contains only those keys K of T such that K1
+<= K <= K2.
+
+Define the _left fringe_ of a rooted ordered tree as the following set
+of nodes.
+
++ The root node is in the left fringe.
++ If any node is in the left fringe and has children, then its
+  left-most (i.e. first) child is also in the left fringe.
+
+The _right fringe_ is defined the same way, replacing all occurrences
+of "left" with "right", and "first" with "last".  The drawing below
+gives an example of the nodes in the left and right fringe of a tree.
+
+<img src="images/rooted-ordered-tree-fringes.png" alt="Left and right fringes of a rooted ordered tree" width="600" align="middle">
+
+It turns out to be a fruitful approach to implement a split operation
+by first simply removing all leaves for key/value pairs with keys less
+than K, and then removing all internal nodes that have no remaining
+children after those leaves are removed, as shown in this example:
+
+<img src="images/b-tree-kvs-splice-example-1.png" alt="Example 1 of first step of B-tree splice operation" width="800" align="middle">
+
+The problem with this intermediate step is that the resulting tree T'
+can violate some of the B-tree invariants, in particular invariant
+(I6) that restricts the minimum number of children a node must have.
+
+So, we then "fix up" the tree, such that the final resulting tree
+satisfies all invariants.  The trick is to do so in worst case O(log
+N) time, and prove that the result will always satisfy all of the
+invariants, regardless of what tree T and key K were given for the
+splice operation.
+
+First, observe that in tree T', all internal nodes have the same
+number of children they had in T, except perhaps for some of the nodes
+in the left fringe of T'.
+
+
+### Efficient B-tree concatenate operations
+
 
 ## Invariants for Clojure's PersistentVector implementation
 
@@ -201,14 +295,6 @@ Unlike B-trees, all array nodes always contain exactly B children
 (which are vector elements).  "Most" tree nodes are restricted to
 contain exactly B children, with only a few nodes described below
 allowed to be an exception to that condition.
-
-Define the "right fringe" of a tree as the following set of nodes.
-
-+ The root node is in the right fringe.
-+ If the root node has any children, then the right-most (i.e. last)
-  child is also in the right fringe.
-
-If the root node has any children, then 
 
 
 ### Why store relative index values instead of absolute ones?
