@@ -257,7 +257,7 @@ by first simply removing all leaves for key/value pairs with keys less
 than K, and then removing all internal nodes that have no remaining
 children after those leaves are removed, as shown in this example:
 
-<img src="images/b-tree-kvs-splice-example-1.png" alt="Example 1 of first step of B-tree splice operation" width="800" align="middle">
+<img src="images/b-tree-kvs-split-example-1.png" alt="Example 1 of first step of B-tree split operation" width="800" align="middle">
 
 The problem with this intermediate step is that the resulting tree T'
 can violate some of the B-tree invariants, in particular invariant
@@ -266,7 +266,7 @@ can violate some of the B-tree invariants, in particular invariant
 So, we then "fix up" the tree, such that the final tree satisfies all
 invariants.  The trick is to do so in worst case O(log N) time, and
 prove that the result will always satisfy all of the invariants,
-regardless of what tree T and key K were given for the splice
+regardless of what tree T and key K were given for the split
 operation.
 
 First, observe that in tree T', all internal nodes have the same
