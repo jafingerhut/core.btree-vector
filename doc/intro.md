@@ -451,6 +451,15 @@ need to be mutated in place (but not all of them).
 <img src="images/b-tree-order-5-with-27-elements-split-3.png" alt="Split T keeping only keys 3 and larger" width="1000" align="middle">
 
 
+#### Split keeping keys 1 and larger
+
+Note that the starting tree here is different than the ones above.
+The tree used earlier cannot be used to demonstrate hitting case
+(split5), but this one can.
+
+<img src="images/b-tree-order-5-with-27-elements-split-1.png" alt="Split T keeping only keys 1 and larger" width="800" align="middle">
+
+
 ### Efficient B-tree concatenate operations
 
 
