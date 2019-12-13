@@ -7,25 +7,40 @@ than linear time behavior you get if you evaluate `(into v1 v2)` for
 two Clojure vectors.
 
 These new vectors should still support all existing operations on
-Clojure vectors as efficiently as Clojure vectors do, or at worst be
-a small constant times slower.
+Clojure vectors as efficiently as Clojure vectors do, or at worst be a
+small constant factor slower.
 
-The research papers about the RRB Tree data structure claim that data
-structure provides that, but everything I have read so far on RRB
-Trees leave out some details of implementation that are not clear to
-me how they should be performed, and [all of the RRB Tree
-implementations I have found so
+The research papers about the RRB tree data structure claim that it
+provides that, but everything I have read so far on RRB trees leave
+out some details of implementation that are not clear to me how they
+should be performed, and [all of the RRB Tree implementations I have
+found so
 far](https://github.com/clojure/core.rrb-vector/blob/master/doc/rrb-tree-notes.md)
-have bugs in their operations.  Without clearly stated invariants, it
-can be difficult to approach such an existing implementation and see
-what changes ought to be made that will be correct, or indeed if that
-is even possible while preserving the performance guarantees.
+have errors.  Without clearly stated invariants, it can be difficult
+to approach an existing implementation and see what changes ought to
+be made that will be correct, or indeed if that is even possible while
+preserving the performance guarantees.
 
 So while this article may be extended to give details on how all
 operations are implemented efficiently, the focus here is on ensuring
 that creating a sub-vector of an existing vector, and creating a
 concatenation of two existing vectors, can be done in worst case O(log
 N) time.
+
+I thank Glen Peterson for pointing out in the comments and code of the
+`RrbTree` class of his [Paguro
+library](https://github.com/GlenKPeterson/Paguro) that B-trees are a
+way to simplify understanding how to maintain tree invariants for a
+vector data structure that supports sub-vector and concatenation
+operations.  He may well have came up with these invariants and
+methods of maintaining them before I did.  I have not checked his code
+carefully enough to tell.
+
+Even if he did not, I would be very surprised if no one else has
+already devised proofs of the things below, given how long B-trees
+have been known about.  If you know of a published work somewhere that
+covers this, I would very much appreciate a reference to it.  I have
+not found such a thing yet.
 
 
 ## Using invariants to develop programs
@@ -387,6 +402,11 @@ even if we never hit case (split1), e.g. if we hit case (split4) for
 the left child of the root, and removed it, when the root had only two
 children to start with.  If so, since there are at least B+1 leaves,
 make that one child of the root become the new root node.
+
+At most two nodes per depth value of the tree T' are modified in place
+for a mutable implementation of this operation, or allocated and
+initialized for an immutable implementation.  Thus the run time is
+O(B*H), where H is the height of the tree, which is O(log N).
 
 
 ### Efficient B-tree concatenate operations
