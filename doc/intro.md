@@ -7,7 +7,7 @@ than linear time behavior you get if you evaluate `(into v1 v2)` for
 two Clojure vectors.
 
 These new vectors should still support all existing operations on
-Clojure vectors as efficienctly as Clojure vectors do, or at worst be
+Clojure vectors as efficiently as Clojure vectors do, or at worst be
 a small constant times slower.
 
 The research papers about the RRB Tree data structure claim that data
@@ -321,13 +321,11 @@ of T', examine its parent node F, try "fixing up" F's number of
 children, then work our way upwards along the left fringe towards the
 root.  Thus F has at least one child.
 
-There are several cases to consider:
-
-In all split cases, all nodes originally have at most B children in T,
-and so have at most B children in T', too.  F is on the left fringe of
-T', and so has no left neighbor.  Because F is not a leaf, it is an
-internal node, and all nodes at its same depth are also internal
-nodes.
+There are several cases to consider.  In all of them, all nodes
+originally have at most B children in T, and so have at most B
+children in T', too.  F is on the left fringe of T', and so has no
+left neighbor.  Because F is not a leaf, it is an internal node, and
+all nodes at its same depth are also internal nodes.
 
 Case (split1): F has no right neighbor.  Thus F is the only node at
 its depth d in the tree.  Either F is the root node, or F's parent is
@@ -376,13 +374,19 @@ possibility that did not exist the first time is that the new F node
 might have 0 children, if we hit case (split4) earlier.  This
 possibility is covered by the case below.
 
-Case (split6): F has 0 children.  This case can noly occur if we have
+Case (split6): F has 0 children.  This case can only occur if we have
 hit case (split4) earlier, when the removed node had a right sibling.
 Thus the current F must have a right sibling, too.  Remove the current
 F, which like case (split4) reduces the number of children of the
 current F's parent by 1, and we might hit this case again, but
 eventually at some ancestor of the current F we must hit a different
 case.
+
+It is possible that the root node might have only one child remaining,
+even if we never hit case (split1), e.g. if we hit case (split4) for
+the left child of the root, and removed it, when the root had only two
+children to start with.  If so, since there are at least B+1 leaves,
+make that one child of the root become the new root node.
 
 
 ### Efficient B-tree concatenate operations
