@@ -132,7 +132,7 @@ The invariants that a B-tree must satisfy are:
 (I3) All leaf nodes are at the same depth as each other.
 
 (I4) The order of all key/value pairs in a tree is the same as the
-     order that the leaf nodes are traversed in a [depth-first
+     order that the leaf nodes are visited in a [preorder depth-first
      traversal](https://en.wikipedia.org/wiki/Depth-first_search),
      where all children of a node are visited in the same order that
      they are children of their parent.  The order of keys must be
@@ -155,6 +155,24 @@ For now we will leave the value of B arbitrary, and only pick a
 particular value for use in examples, and for the core.btree-vector
 implementation.
 
+Aside: A special case not mentioned very often is a B-tree with no
+key/value pairs, i.e. an empty set of keys.  The exact representation
+of an empty B-tree is not a big deal -- e.g.  storing a count field of
+0 in the object is a good way.  There might be a root node with no
+children in the implementation, but we will not usually consider that
+case explicitly everywhere in this document.  If we did, we would
+frequently be mentioning that special case, and I would prefer not to
+keep mentioning it.
+
+
+### Definitions of some terms related to B-trees
+
+These definitions need not be understood immediately.  Feel free to
+skip over them and come back as and when you need them.  I wanted to
+keep them together in this document.
+
+Examples of all of these definitions are in the next section.
+
 For trees satisfying (I3), we can define the _height_ of a node as the
 number of edges in any path from the node down to a leaf node.  For
 any node in a tree satisfying (I3), there is only one such number.
@@ -162,14 +180,31 @@ The height of all leaf nodes is 0, and for any internal node, its
 height is equal to the height of any of its children (which all have
 the same height as each other), plus 1.
 
-Aside: A special case not mentioned very often is a B-tree with no
-values, i.e. an empty set of values.  The exact representation of an
-empty B-tree is not a big deal -- e.g.  storing a count field of 0 in
-the object is a good way.  There might be a root node with no children
-in the implementation, but we will not usually consider that case
-explicitly everywhere in this document.  If we did, we would
-frequently be mentioning that special case, and I would prefer not to
-keep mentioning it.
+For any rooted ordered tree T, define _dfs(T)_ to be the ordered list
+of nodes of T, in the order they are traversed in a [preorder depth
+first traversal](https://en.wikipedia.org/wiki/Depth-first_search), of
+T.  Since T is ordered, there is only one possible order for the nodes
+in dfs(T).
+
+Define _depth(T, d)_ to be the ordered list of nodes obtained by
+starting with dfs(T), and removing all nodes that have a depth not
+equal to d, keeping the relative order of the nodes with depth d.
+
+For any node N with depth d in a rooted ordered tree T, define N's
+_right neighbor_ to be the first node after N in the list depth(T, d).
+If there is no node after N in that list, N has no right neighbor.
+Similarly the _left neighbor_ of N is the last node before N in the
+list depth(T, d), if there is such a node.
+
+Define the _left fringe_ of a rooted ordered tree as the following set
+of nodes.
+
++ The root node is in the left fringe.
++ If any node is in the left fringe and has children, then its
+  left-most (i.e. first) child is also in the left fringe.
+
+The _right fringe_ is defined the same way, replacing all occurrences
+of "left" with "right", and "first" with "last".
 
 
 ### B-tree examples, and consequences of the invariants
@@ -218,6 +253,21 @@ thesis contains detailed proofs of this and many other results.
   Transience", Master Thesis, 2014,
   [[PDF]](https://hypirion.com/thesis.pdf)
 
+The tree below demonstrates several definitions from the previous
+section.
+
+<img src="images/rooted-ordered-tree-fringes.png" alt="Left and right fringes of a rooted ordered tree" width="600" align="middle">
+
++ dfs(T) = [A, B, C, D, E, F, G, H, I, J, K, L]
++ depth(T, 0) = [A]
++ depth(T, 1) = [B, F, H, L]
++ depth(T, 2) = [C, D, E, G, I, K]
++ depth(T, 3) = [J]
++ depth(T, 4) = [] (i.e. the empty list -- there are no nodes at depth
+  4 in this tree)
++ The left neighbor of H is F, and the right neighbor of H is L.
++ B has no left neighbor.  The right neighbor of B is F.
+
 
 ### Efficient B-tree split operations
 
@@ -239,19 +289,6 @@ which given a tree T and a minimum key K1 and a maximum key K2,
 returns a tree T2, that contains only those keys K of T such that K1
 <= K <= K2.
 
-Define the _left fringe_ of a rooted ordered tree as the following set
-of nodes.
-
-+ The root node is in the left fringe.
-+ If any node is in the left fringe and has children, then its
-  left-most (i.e. first) child is also in the left fringe.
-
-The _right fringe_ is defined the same way, replacing all occurrences
-of "left" with "right", and "first" with "last".  The drawing below
-gives an example of the nodes in the left and right fringe of a tree.
-
-<img src="images/rooted-ordered-tree-fringes.png" alt="Left and right fringes of a rooted ordered tree" width="600" align="middle">
-
 It turns out to be a fruitful approach to implement a split operation
 by first simply removing all leaves for key/value pairs with keys less
 than K, and then removing all internal nodes that have no remaining
@@ -271,7 +308,20 @@ operation.
 
 First, observe that in tree T', all internal nodes have the same
 number of children they had in T, except perhaps for some of the nodes
-in the left fringe of T'.
+in the left fringe of T'.  If we can find a way to correct those
+nodes, and preferably a small number of others "near" them, that would
+be good.
+
+Let us start with the parent node F of the leaf node in the left
+fringe of T', and try "fixing up" its number of children, then work
+our way upwards along the left fringe towards the root.
+
+First, we introduce a few more definitions that will help us be
+precise.
+
+There are several cases to consider:
+
+Case (split1): F has a "neighbor to the right".  in the tree there is a node N with the same depth as F.  In a depth first traversal of T', F would be the next node after N that has 
 
 
 ### Efficient B-tree concatenate operations
