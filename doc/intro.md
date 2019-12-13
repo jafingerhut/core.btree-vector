@@ -428,12 +428,12 @@ how they correspond to each other from one step to the next.
 The following tree will be used as the initial tree T on which to
 perform a split operation for most of the examples in this section.
 
-<img src="images/b-tree-order-5-with-27-elements.png" alt="B-tree with order 5 and 27 keys" width="800" align="middle">
+<img src="images/b-tree-order-5-with-27-elements.png" alt="B-tree with order 5 and 27 keys" width="1000" align="middle">
 
-In these examples, nodes colored pink are ones that would be mutated
-if this operation were being performed on a mutable data structure, or
-in an immutable implementation, they would be freshly allocated and
-initialized during the split operation.
+In these examples, nodes colored pink are ones that must be freshly
+allocated and initialized in an immutable implementation.  Even in a
+mutable implementation, at least some of the ones colored pink would
+need to be mutated in place (but not all of them).
 
 
 #### Split T keeping keys 20 and larger
@@ -448,7 +448,7 @@ initialized during the split operation.
 
 #### Split T keeping keys 3 and larger
 
-<img src="images/b-tree-order-5-with-27-elements-split-3.png" alt="Split T keeping only keys 3 and larger" width="800" align="middle">
+<img src="images/b-tree-order-5-with-27-elements-split-3.png" alt="Split T keeping only keys 3 and larger" width="1000" align="middle">
 
 
 ### Efficient B-tree concatenate operations
