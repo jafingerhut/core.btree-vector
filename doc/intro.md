@@ -182,15 +182,20 @@ of nodes of T, in the order they are traversed in a [preorder depth
 first traversal](https://en.wikipedia.org/wiki/Depth-first_search) of
 T.
 
-Define _depth(T, d)_ to be the ordered list of nodes obtained by
+Define _nodes(T, d)_ to be the ordered list of nodes obtained by
 starting with dfs(T), and removing all nodes that have a depth not
 equal to d, keeping the relative order of the nodes with depth d.
 
 For any node N with depth d in a rooted ordered tree T, define N's
-_right neighbor_ to be the first node after N in the list depth(T, d).
+_right neighbor_ to be the first node after N in the list nodes(T, d).
 If there is no node after N in that list, N has no right neighbor.
 Similarly the _left neighbor_ of N is the last node before N in the
-list depth(T, d), if there is such a node.
+list nodes(T, d), if there is such a node.
+
+Note that if a node N has a left neighbor A, then either N and A have
+the same parent node, or N's parent PN has a left neighbor that is A's
+parent PA.  Similarly if you substitute all occurrences of "left" with
+"right" in the previous sentence.
 
 Define the _left fringe_ of a rooted ordered tree as the following set
 of nodes.
@@ -254,11 +259,11 @@ section.
 <img src="images/rooted-ordered-tree-fringes.png" alt="Left and right fringes of a rooted ordered tree" width="600" align="middle">
 
 + dfs(T) = [A, B, C, D, E, F, G, H, I, J, K, L]
-+ depth(T, 0) = [A]
-+ depth(T, 1) = [B, F, H, L]
-+ depth(T, 2) = [C, D, E, G, I, K]
-+ depth(T, 3) = [J]
-+ depth(T, 4) = [] (i.e. the empty list -- there are no nodes at depth
++ nodes(T, 0) = [A]
++ nodes(T, 1) = [B, F, H, L]
++ nodes(T, 2) = [C, D, E, G, I, K]
++ nodes(T, 3) = [J]
++ nodes(T, 4) = [] (i.e. the empty list -- there are no nodes at depth
   4 in this tree)
 + The left neighbor of H is F, and the right neighbor of H is L.
 + B has no left neighbor.  The right neighbor of B is F.
@@ -307,13 +312,77 @@ in the left fringe of T'.  If we can find a way to correct those
 nodes, and preferably a small number of others "near" them, that would
 be good.
 
-We will begin by finding the leaf node in the left fringe of T',
-examine its parent node F, try "fixing up" F's number of children,
-then work our way upwards along the left fringe towards the root.
+As a special case, if the number of remaining leaves is at most B,
+then we can simply make all of them children of a new root node, and
+the resulting tree satisfies all invariants.
+
+Otherwise, we will begin by finding the leaf node in the left fringe
+of T', examine its parent node F, try "fixing up" F's number of
+children, then work our way upwards along the left fringe towards the
+root.  Thus F has at least one child.
 
 There are several cases to consider:
 
-Case (split1): F has a right neighbor.
+In all split cases, all nodes originally have at most B children in T,
+and so have at most B children in T', too.  F is on the left fringe of
+T', and so has no left neighbor.  Because F is not a leaf, it is an
+internal node, and all nodes at its same depth are also internal
+nodes.
+
+Case (split1): F has no right neighbor.  Thus F is the only node at
+its depth d in the tree.  Either F is the root node, or F's parent is
+also the only node at its depth d-1 in the tree, and F's grandparent
+is the only node at its depth d-2 in the tree, etc. all the way up to
+the root.  We can make F the new root node, deleting any ancestor
+nodes, and all invariants are satisfied by this new tree.  In this
+case, the height of the resulting tree might be less than the tree T
+we started with.
+
+In all other split cases below, F has a right neighbor node R, both at
+depth d.  Thus neither F nor R are the root node of T', because root
+nodes have no neighbors.  R is not on the left fringe of T', so has
+the same number of children in T and T', which must be in the range
+[b, B], because T satisfies all invariants.
+
+Case (split2): F has a number of children in the range [b, B].  F does
+not violate any invariants by itself, so we are done with F.  Continue
+with F's parent.
+
+Case (split3): F has a number of children in the range [1, b-1], which
+violates invariant (I6).  Subcases we will consider are (split4) and
+(split5) below.
+
+Case (split4): The total number of children of F and R is at most B.
+Take all of F's children and make them become children of R instead,
+preserving their relative order in nodes(T', d).  Now we remove F,
+which has no children, and the node that was F's parent has one less
+child than before (possibly none, now that F has been removed).
+
+Case (split5): The total number of children of F and R is at least
+B+1.  R has a number of children in range [b, B].  Because this is a
+sub-case of (split3), F has a number of children in range [1, b-1].
+Thus the total number of children is in the range [B+1, B+b-1].  Pick
+a new number X of children for F to have, taking some from R's
+leftmost children so that the relative order of nodes(T', d) remains
+the same.  There may in some case be multiple choices for the value of
+X, but X=b always leaves at least B+1-b children left over for R.
+Because b=ceiling(B/2), B+1-b is at least b, so in the resulting tree
+both F and R will both have at least b children.
+
+If we hit case (split1), or if F was the root node, we are done.  If F
+was not the root and we hit any other case, let the new value of F
+become what was F's parent, and check the cases above again.  A new
+possibility that did not exist the first time is that the new F node
+might have 0 children, if we hit case (split4) earlier.  This
+possibility is covered by the case below.
+
+Case (split6): F has 0 children.  This case can noly occur if we have
+hit case (split4) earlier, when the removed node had a right sibling.
+Thus the current F must have a right sibling, too.  Remove the current
+F, which like case (split4) reduces the number of children of the
+current F's parent by 1, and we might hit this case again, but
+eventually at some ancestor of the current F we must hit a different
+case.
 
 
 ### Efficient B-tree concatenate operations
