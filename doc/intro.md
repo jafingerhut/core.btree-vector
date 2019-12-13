@@ -118,7 +118,6 @@ where they need not be stored at all.
 
 The following conditions for a B-tree's structure apply for any
 maximum branch factor B that is an integer value at least 3.
-
 b=ceiling(B/2) is B divided by 2, then rounded up to the next integer
 if the result is a fraction.  Since B >= 3, b is always at least 2.
 
@@ -141,8 +140,8 @@ The invariants that a B-tree must satisfy are:
 (I5) All nodes have at most B children.
 
 (I6) All non-root internal nodes have at least b children.  The root
-     node has at least 2 children, unless there is only one value in
-     the entire tree, in which case the root has 1 child.
+     node has at least 2 children, unless there is only one key/value
+     pair in the entire tree, in which case the root has 1 child.
 
 (I7) All internal nodes with A >= 2 children contain A-1 keys.  If we
      number the children, in order, from c[0] up to c[A-1], and the
@@ -167,11 +166,9 @@ keep mentioning it.
 
 ### Definitions of some terms related to B-trees
 
-These definitions need not be understood immediately.  Feel free to
-skip over them and come back as and when you need them.  I wanted to
-keep them together in this document.
-
-Examples of all of these definitions are in the next section.
+Feel free to skip over these definitions and come back as and when you
+need them.  I wanted to keep them together in this document.  Examples
+of all of these definitions are in the next section.
 
 For trees satisfying (I3), we can define the _height_ of a node as the
 number of edges in any path from the node down to a leaf node.  For
@@ -182,9 +179,8 @@ the same height as each other), plus 1.
 
 For any rooted ordered tree T, define _dfs(T)_ to be the ordered list
 of nodes of T, in the order they are traversed in a [preorder depth
-first traversal](https://en.wikipedia.org/wiki/Depth-first_search), of
-T.  Since T is ordered, there is only one possible order for the nodes
-in dfs(T).
+first traversal](https://en.wikipedia.org/wiki/Depth-first_search) of
+T.
 
 Define _depth(T, d)_ to be the ordered list of nodes obtained by
 starting with dfs(T), and removing all nodes that have a depth not
@@ -228,21 +224,20 @@ key/value pairs:
 <img src="images/b-tree-kvs-order-5-few-elements.png" alt="Small B-trees with order 5" width="800" align="middle">
 
 For B=5 and b=3, those are the _only_ tree structures that are legal
-for the given number of elements.  In general, if there are less than
-2b vector elements, all elements must be direct children of the root,
-at depth 1.  There are no other tree structures that satisfy all of
-the invariants for so few elements.
+for the given number of keys.  In general, if there are less than 2b
+keys, all key/value pairs must be direct children of the root, at
+depth 1.  There are no other tree structures that satisfy all of the
+invariants for so few keys.
 
 There are at least two tree structures that satisfy the invariants for
-2b+1 or more elements.  As the number of elements grows, the number of
-tree structures satisfying the invariants grows exponentially.  It is
+2b+1 or more keys.  As the number of keys grows, the number of tree
+structures satisfying the invariants grows exponentially.  It is
 reasonable for a B-tree implementation to allow any tree structure to
 be used, as long as it satisfies all of the invariants.
 
-The three B-trees below are all legal for 9 elements, with B=5 and
-b=3.
+The three B-trees below are all legal for 9 keys, with B=5 and b=3.
 
-<img src="images/b-tree-kvs-order-5-with-9-elements.png" alt="B-trees with order 5 and 9 elements" width="800" align="middle">
+<img src="images/b-tree-kvs-order-5-with-9-elements.png" alt="B-trees with order 5 and 9 keys" width="800" align="middle">
 
 The height of a B-tree is O(log N), where the base of the logarithm is
 b.  It can be slightly less than that if enough nodes have branching
@@ -312,16 +307,13 @@ in the left fringe of T'.  If we can find a way to correct those
 nodes, and preferably a small number of others "near" them, that would
 be good.
 
-Let us start with the parent node F of the leaf node in the left
-fringe of T', and try "fixing up" its number of children, then work
-our way upwards along the left fringe towards the root.
-
-First, we introduce a few more definitions that will help us be
-precise.
+We will begin by finding the leaf node in the left fringe of T',
+examine its parent node F, try "fixing up" F's number of children,
+then work our way upwards along the left fringe towards the root.
 
 There are several cases to consider:
 
-Case (split1): F has a "neighbor to the right".  in the tree there is a node N with the same depth as F.  In a depth first traversal of T', F would be the next node after N that has 
+Case (split1): F has a right neighbor.
 
 
 ### Efficient B-tree concatenate operations
@@ -364,10 +356,10 @@ larger in the returned vector than they were in the second input
 vector (unless the first vector was empty).
 
 Thus it is important that if we do not want to require all sub-vector
-and concatenation operations to take linear time, the key values
-should not be explicitly stored as absolute values.  Instead they are
-stored as relative values in each sub-tree, relative to the number of
-elements that exist in earlier sub-trees.
+and concatenation operations to take linear time, the keys should not
+be explicitly stored as absolute numbers.  Instead they are stored as
+relative numbers in each sub-tree, relative to the number of elements
+that exist in earlier sub-trees.
 
 
 # Details to double check later
