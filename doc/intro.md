@@ -409,6 +409,48 @@ initialized for an immutable implementation.  Thus the run time is
 O(B*H), where H is the height of the tree, which is O(log N).
 
 
+### Examples demonstrating B-tree split operations
+
+The examples in this section are intended to demonstrate each of the
+cases of the proof of the split operation in the previous section.
+Hold onto your eyeballs, because the example trees have to get a bit
+larger in order to hit some of the cases.
+
+In this section, to avoid unnecessary clutter we draw the B-trees with
+keys in the leaves, but no values, since the main relevant factor here
+is the structure of the trees.  We also do not bother showing the keys
+in the internal nodes.  They do need to be updated during some of
+these operations, but in a fairly obvious way, I think, that showing
+them explicitly would not help much.  Internal nodes are labeled with
+letters simply to make it easier to refer to them in the text, and see
+how they correspond to each other from one step to the next.
+
+The following tree will be used as the initial tree T on which to
+perform a split operation for most of the examples in this section.
+
+<img src="images/b-tree-order-5-with-27-elements.png" alt="B-tree with order 5 and 27 keys" width="800" align="middle">
+
+
+#### Split T keeping keys 20 and larger
+
+<img src="images/b-tree-order-5-with-27-elements-split-20.png" alt="Split T keeping only keys 20 and larger" width="800" align="middle">
+
+
+#### Split T keeping keys 17 and larger
+
+TBD
+
+
+#### Split T keeping keys 8 and larger
+
+TBD
+
+
+#### Split T keeping keys 3 and larger
+
+TBD
+
+
 ### Efficient B-tree concatenate operations
 
 
