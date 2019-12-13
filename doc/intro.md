@@ -430,6 +430,11 @@ perform a split operation for most of the examples in this section.
 
 <img src="images/b-tree-order-5-with-27-elements.png" alt="B-tree with order 5 and 27 keys" width="800" align="middle">
 
+In these examples, nodes colored pink are ones that would be mutated
+if this operation were being performed on a mutable data structure, or
+in an immutable implementation, they would be freshly allocated and
+initialized during the split operation.
+
 
 #### Split T keeping keys 20 and larger
 
@@ -438,17 +443,12 @@ perform a split operation for most of the examples in this section.
 
 #### Split T keeping keys 17 and larger
 
-TBD
-
-
-#### Split T keeping keys 8 and larger
-
-TBD
+<img src="images/b-tree-order-5-with-27-elements-split-17.png" alt="Split T keeping only keys 17 and larger" width="800" align="middle">
 
 
 #### Split T keeping keys 3 and larger
 
-TBD
+<img src="images/b-tree-order-5-with-27-elements-split-3.png" alt="Split T keeping only keys 3 and larger" width="800" align="middle">
 
 
 ### Efficient B-tree concatenate operations
