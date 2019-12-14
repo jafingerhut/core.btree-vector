@@ -462,6 +462,107 @@ The tree used earlier cannot be used to demonstrate hitting case
 
 ### Efficient B-tree concatenate operations
 
+Finally, the section that was my original motivation for writing all
+of this.  I found the easier proof/algorithm for the split operation
+first, as kind of a warm-up exercise, and only after that realized
+that it could be used as part of a proof/algorithm for efficient
+concatenation, too.
+
+Another reason I started with the split operation is due to concerns I
+had that even if the RRB tree data can implement concatenation of two
+RRB trees, it was not so clear that one can start with an RRB tree,
+perform a split operation on it, and end with another tree satisfying
+all RRB tree invariants.  The fact that this definitely can be done
+with B-trees I found very encouraging.
+
+We are given two B-trees T1 and T2, and all keys in T1 are less than
+all keys in T2.  We want to combine them to produce a tree T3 that
+contains the union of all key/value pairs of T1 and T2.  The
+restriction that all keys in T1 are less than all keys in T2 is all
+that we need for B-trees that represent vectors, and it is a simpler
+operation than the general case of arbitrary keys.  Perhaps later I
+can write more about the general case of combining two arbitrary sets
+of key/value pairs represented as B-trees.
+
+While there might be a way to streamline this presentation somewhat by
+combining the two cases below into one, this is the easiest way to
+understand it that I know now.
+
+T1 has root node R1 and T2 has root node R2.
+
+
+#### Concatenate two B-trees with the same height
+
+Consider the case that T1 and T2 have the same height as each other.
+
+If R1 and R2 have a total number of children at most B, then create a
+new root R3 that has all of the children of R1, nodes(T1, 1), followed
+by all of the children of R2, nodes(T2, 1).
+
+If the total number of children is at least B+1, then by the
+invariants that T1 and T2 satisfy, the total is at most 2*B.  Divide
+up the children into two groups such that both groups have a number of
+nodes in the range [b, B], and put the first group under a new node
+R1', and the second under a new node R2'.  b+b is less than or equal
+to B+1, so it is always possible to divide them up in this way.  Then
+create a new root node R3 that has R1' as the first child, and R2' as
+the second.
+
+
+#### Concatenate two B-trees with the different heights
+
+Now we consider the case that T1 has height H1, T2 has a different
+height H2.  We will walk through the details for the case H1 < H2.
+The case H1 > H2 is handled similarly -- it is simply the "mirror
+image" of the case H1 < H2.
+
+If R2 has less than B children, create a new left child node R2.  If
+H1 = H2-1, then make R1 the new left child of R2.  If H1 < H2-1, then
+make a path containing (H2-1-H1) new nodes, the first of which is the
+new left child of R2, and the last of which is the parent of R1.  This
+will cause the resulting tree to have all leaves at the same depth.
+
+If R2 has B children, then make a new root node R3 with right child
+R2, and left child a path of (H2-H1) nodes, the last of which is a
+parent of R1.  Again, this causes the resulting tree to have all
+leaves at the same depth.
+
+This tree might satisfy all invariants, and if so, we are done.  If it
+does not satisfy all invariants, it will be because R1 has less than b
+children, but also because some of the new nodes added only have 1
+child.
+
+The key thing to notice is that even if the tree does not satisfy all
+invariants, we can view it as a tree that _could be the result_ of
+starting with a tree that satisfied all invariants, and then we did a
+split operation that kept only the keys at least the smallest key that
+is now in the tree.  The left fringe nodes contain some nodes from T2,
+and perhaps some new ones.  All descendants of R2 already satisfy the
+invariants, so we can start with R2 and work our way up, fixing up the
+tree so it satisfies the invariants, as described in the section on
+the split operation.
+
+If it is any clearer, there is another way to view it: The algorithm
+for fixing up a tree after removing nodes for a split works on any
+tree for which the only nodes that violate the invariants are all on
+the left fringe (or all on the right fringe), and they only violate
+them by having too few children.  The intermediate tree constructed by
+the method described above can also only violate invariants in that
+same way.
+
+
+### Examples demonstrating B-tree concatenate operations
+
+The case of T1 and T2 having the same height seems straightforward
+enough that an example is not necessary.  We will give a couple of
+examples of the case where T1 has height less than T2.
+
+
+#### Concatenate T1
+
+TBD
+
+
 
 ## Invariants for Clojure's PersistentVector implementation
 
