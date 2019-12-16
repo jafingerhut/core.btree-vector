@@ -469,11 +469,11 @@ that it could be used as part of a proof/algorithm for efficient
 concatenation, too.
 
 Another reason I started with the split operation is due to concerns I
-had that even if the RRB tree data can implement concatenation of two
-RRB trees, it was not so clear that one can start with an RRB tree,
-perform a split operation on it, and end with another tree satisfying
-all RRB tree invariants.  The fact that this definitely can be done
-with B-trees I found very encouraging.
+had that even if the RRB tree data structure can implement
+concatenation of two RRB trees, it was not so clear that one can start
+with an RRB tree, perform a split operation on it, and end with
+another tree satisfying all RRB tree invariants.  The fact that this
+definitely can be done with B-trees I found very encouraging.
 
 We are given two B-trees T1 and T2, and all keys in T1 are less than
 all keys in T2.  We want to combine them to produce a tree T3 that
