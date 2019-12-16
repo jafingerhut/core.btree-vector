@@ -685,11 +685,6 @@ that exist in earlier sub-trees.
 
 # Details to double check later
 
-[TBD: Where to introduce this?]  We will call the parent nodes of leaf
-nodes _array nodes_ (TBD: maybe a phrase to motivate this choice
-here).  If the tree has height 1, then the only non-leaf node, the
-root node, is an array node.
-
 TBD: Compare this terminology with that used in Clojure source code
 for PersistentVector and Vector.
 
