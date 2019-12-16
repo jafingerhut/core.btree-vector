@@ -1,5 +1,10 @@
 # Introduction to core.btree-vector
 
+This document is unlikely to be of interest, unless you want to know
+how and why the data structures and operations in the
+core.btree-vector library work, and similarly for Clojure's built in
+vector data structure.
+
 My original motivation for writing this library was to have an
 implementation of an immutable vector that supports O(log N) time
 concatenation operations, worst case, which is significantly faster
@@ -578,22 +583,83 @@ up the left fringe from R1 on up.
 
 ## Invariants for Clojure's PersistentVector implementation
 
-Clojure's `PersistentVector` implementation satisfies some invariants
-that are similar to the ones described in the previous section.
+Clojure's `PersistentVector` implementation (often abbreviated "PV"
+here) satisfies invariants that are similar to the ones described in
+the section [Invariants for B-trees](#invariants-for-b-trees), but
+there are differences.
 
-Every vector element is stored either as a leaf in a tree, or in an
-array of up to 32 elements called the "tail".  The tail array always
-contains at least one element if the vector is not empty, which
-guarantees that the `peek` operation, which returns the last element
-of the vector, always takes O(1) time.
+We introduce one new definition that is helpful when describing PVs:
 
-Similar to B-trees, all vector elements are at the same depth as each
-other from the root node.
+An _array node_ is an internal node that has height 1, i.e. it is a
+parent of leaf nodes, where the leaf nodes contain the vector
+elements.
 
-Unlike B-trees, all array nodes always contain exactly B children
-(which are vector elements).  "Most" tree nodes are restricted to
-contain exactly B children, with only a few nodes described below
-allowed to be an exception to that condition.
+The invariants that B-trees and PVs have in common are given first.
+Note that PVs never store the keys, i.e. the vector index values in
+the range 0 up to n-1, since given the invariants, they can be
+determined from a value's position in the tree.
+
+(I1) It is a rooted ordered tree.
+
+(I3) All leaf nodes are at the same depth as each other.
+
+(I4) The order of all key/value pairs in a tree is the same as the
+     order that the leaf nodes are visited in a [preorder depth-first
+     traversal](https://en.wikipedia.org/wiki/Depth-first_search),
+     where all children of a node are visited in the same order that
+     they are children of their parent.  The order of keys must be
+     consistent with the total order specified for the keys.
+
+(I5) All nodes have at most B children.
+
+(I2) is almost the same for PVs, except that besides the tree, PVs
+also have a "tail" array that stores from 1 up to B vector elements at
+the end of the vector (minor exception: if the vector is empty, the
+tail is also empty).
+
+PVs do not satisfy (I6) (i.e. all non-root internal nodes have at
+least b children) at all.  Instead they satisfy these invariants:
+
+(I8) All internal nodes that are not on the right fringe, and all
+     array nodes, have exactly B children.
+
+(I9) Internal nodes on the right fringe (except the one array node on
+     the right fringe) must have at least one child, but are allowed
+     to have less than B children.
+
+The tail array serves several purposes:
+
++ Because it always contains the last vector element, for non-empty
+  vectors, it guarantees that the `peek` operation to retrieve the
+  last element is O(1) time.
++ It makes appending an element, or removing the last element, usually
+  O(1) time, by creating a new tail array.  Only when the last element
+  is removed when the tail has only 1 element, or when a new element
+  is appended when the tail contains B elements, is the operation
+  O(log N) time (where the base of the log is B, 32 in the PV
+  implementation).
++ It makes it fast and simple to preserve the invariants that all
+  array nodes have B=32 children, because a new node is only added to
+  the tree when the tail contained a full B=32 elements, and a new
+  element is appended.
+
+A good property of the PV invariants, "packing everything to the left"
+in the tree, is that one can start at the root, and use the desired
+vector element index value `i` and a small O(1) amount of arithmetic
+to determine which child to go to next, and you will end up at the
+element at index `i`.
+
+A good source for more details on that property, and many others, with
+examples, is Jean Niklas L'orange's series of articles ["Understanding
+Clojure's Persistent
+Vectors"](https://hypirion.com/musings/understanding-persistent-vector-pt-1),
+and his Master's thesis linked earlier in this document.
+
+A disadvantage of the PV invariants is that in general, there is no
+way to concatenate two vectors in less time than linear in the size of
+the second vector.  The variable number of children in a B-tree is
+what enables fast concatenation, but also what makes looking up
+elements in a B-tree slower than in a PV tree.
 
 
 ### Why store relative index values instead of absolute ones?
@@ -640,4 +706,9 @@ used here.
 
 TBD: Is the invariant that all leaf nodes are at the same depth as
 each other important?  Why?  What would go wrong if we tried to allow
-trees with leaf nodes at different depths?
+trees with leaf nodes at different depths?  At least one answer is
+that the algorithm described in section ["Efficient B-tree split
+operations"](efficient-b-tree-split-operations) would need to be
+generalized to work when the right neighbor of a node on the left
+fringe is a leaf, instead of another internal node.  I do not know if
+that is even possible to do.
