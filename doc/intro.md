@@ -553,15 +553,27 @@ same way.
 
 ### Examples demonstrating B-tree concatenate operations
 
-The case of T1 and T2 having the same height seems straightforward
+The cases of T1 and T2 with the same height seem straightforward
 enough that an example is not necessary.  We will give a couple of
-examples of the case where T1 has height less than T2.
+examples where T1 has height less than T2.
 
 
-#### Concatenate T1
+#### Concatenate T1 to larger height T2 that has fewer than B children in its root
 
-TBD
+In the first concatenation example, T2's root node R2 has fewer than B
+children, so we add a new child to R2, then fix up the left fringe
+from R1 on up, as we did for a split operation.
 
+<img src="images/b-tree-order-5-concatenate-example-1.png" alt="Concatenate T1 with larger height T2, T2 has root with less than B children" width="800" align="middle">
+
+
+#### Concatenate T1 to larger height T2 that has B children in its root
+
+In this concatenation example, T2's root node R2 has B children, so we
+add a new parent of R2, and a path from that new root to R1, then fix
+up the left fringe from R1 on up.
+
+<img src="images/b-tree-order-5-concatenate-example-2.png" alt="Concatenate T1 with larger height T2, T2 has B children" width="800" align="middle">
 
 
 ## Invariants for Clojure's PersistentVector implementation
