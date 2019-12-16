@@ -629,25 +629,23 @@ least b children) at all.  Instead they satisfy these invariants:
 
 The tail array serves several purposes:
 
-+ Because it always contains the last vector element, for non-empty
-  vectors, it guarantees that the `peek` operation to retrieve the
-  last element is O(1) time.
-+ It makes appending an element, or removing the last element, usually
-  O(1) time, by creating a new tail array.  Only when the last element
-  is removed when the tail has only 1 element, or when a new element
-  is appended when the tail contains B elements, is the operation
-  O(log N) time (where the base of the log is B, 32 in the PV
-  implementation).
++ Because it always contains the last vector element, it guarantees
+  that the `peek` operation to retrieve the last element is O(1) time.
++ It makes appending an element, or removing the last element, O(1)
+  time in most cases, by creating a new tail array.  The only
+  situations when it takes O(log N) time (log base B) is when the last
+  vector element is removed and the tail has only 1 element, or when a
+  new element is appended and the tail contains B elements.
 + It makes it fast and simple to preserve the invariants that all
-  array nodes have B=32 children, because a new node is only added to
-  the tree when the tail contained a full B=32 elements, and a new
+  array nodes have B children, because a new array node is only added
+  to the tree when the tail contains a full B=32 elements, then a new
   element is appended.
 
 A good property of the PV invariants, "packing everything to the left"
 in the tree, is that one can start at the root, and use the desired
-vector element index value `i` and a small O(1) amount of arithmetic
-to determine which child to go to next, and you will end up at the
-element at index `i`.
+vector element index value `i` and very tiny amount of integer
+arithmetic to determine which child to go to next, and you will end up
+at the element at index `i`.
 
 A good source for more details on that property, and many others, with
 examples, is Jean Niklas L'orange's series of articles ["Understanding
@@ -655,11 +653,11 @@ Clojure's Persistent
 Vectors"](https://hypirion.com/musings/understanding-persistent-vector-pt-1),
 and his Master's thesis linked earlier in this document.
 
-A disadvantage of the PV invariants is that in general, there is no
+A disadvantage of the PV invariants is that, in general, there is no
 way to concatenate two vectors in less time than linear in the size of
-the second vector.  The variable number of children in a B-tree is
-what enables fast concatenation, but also what makes looking up
-elements in a B-tree slower than in a PV tree.
+the second vector.  The range of number of allowed children in B-tree
+nodes is what enables fast concatenation, but also what makes looking
+up elements in a B-tree a little bit slower than in a PV tree.
 
 
 ### Why store relative index values instead of absolute ones?
@@ -708,7 +706,7 @@ TBD: Is the invariant that all leaf nodes are at the same depth as
 each other important?  Why?  What would go wrong if we tried to allow
 trees with leaf nodes at different depths?  At least one answer is
 that the algorithm described in section ["Efficient B-tree split
-operations"](efficient-b-tree-split-operations) would need to be
+operations"](#efficient-b-tree-split-operations) would need to be
 generalized to work when the right neighbor of a node on the left
 fringe is a leaf, instead of another internal node.  I do not know if
 that is even possible to do.
