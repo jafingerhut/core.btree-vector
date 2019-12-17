@@ -476,9 +476,10 @@ concatenation, too.
 Another reason I started with the split operation is due to concerns I
 had that even if the RRB tree data structure can implement
 concatenation of two RRB trees, it was not so clear that one can start
-with an RRB tree, perform a split operation on it, and end with
-another tree satisfying all RRB tree invariants.  The fact that this
-definitely can be done with B-trees I found very encouraging.
+with an RRB tree, perform a split operation on it, and end in O(log N)
+time with another tree satisfying all RRB tree invariants.  The fact
+that this definitely can be done with B-trees I found very
+encouraging.
 
 We are given two B-trees T1 and T2, and all keys in T1 are less than
 all keys in T2.  We want to combine them to produce a tree T3 that
@@ -554,6 +555,22 @@ the left fringe (or all on the right fringe), and they only violate
 them by having too few children.  The intermediate tree constructed by
 the method described above can also only violate invariants in that
 same way.
+
+For this case, we will see in the examples that in some cases, the new
+nodes created are then removed.  I devised this way of doing it
+because it is straightforward to see that it completely reuses the
+proof of the split operation.
+
+It seems likely to me that one can devise a variant of this mehthod
+for concatenating B-trees of different heights that only creates nodes
+if they are present in the final B-tree.  I suspect it would add at
+most a few more cases that need to be proved.  I have not done that
+yet.
+
+Even if that never happens, note that at most H2-H1 nodes are created,
+and this is O(log N) in the size of the largest B-tree involved, so
+even if all of those nodes end up being created and then removed, it
+adds at most O(log N) time to the operation.
 
 
 ### Examples demonstrating B-tree concatenate operations
