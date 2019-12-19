@@ -16,10 +16,10 @@ Clojure vectors as efficiently as Clojure vectors do, or at worst be a
 small constant factor slower.
 
 The research papers about the RRB tree data structure claim that it
-provides that, but everything I have read so far on RRB trees leave
-out some details of implementation that are not clear to me how they
-should be performed, and [all of the RRB Tree implementations I have
-found so
+provides this O(log N) worst case time concatenation, but everything I
+have read so far on RRB trees leave out some details of implementation
+that are not clear to me precisely how they should be performed, and
+[all of the RRB Tree implementations I have found so
 far](https://github.com/clojure/core.rrb-vector/blob/master/doc/rrb-tree-notes.md)
 have errors.  Without clearly stated invariants, it can be difficult
 to approach an existing implementation and see what changes ought to
@@ -45,7 +45,12 @@ Even if he did not, I would be very surprised if no one else has
 already devised proofs of the things below, given how long B-trees
 have been known about.  If you know of a published work somewhere that
 covers this, I would very much appreciate a reference to it.  I have
-not found such a thing yet.
+not found such a thing yet.  The closest I have seen is exercise 18-2
+in the following algorithms textbook.  However, that exercise is
+limited to B-trees with B=4.
+
++ Thomas E. Cormen, Charles E. Lieserson, Ronald L. Rivest, Clifford
+  Stein, "Introduction to Algorithms", 3rd. ed., 2009, MIT Press
 
 
 ## Using invariants to develop programs
@@ -561,11 +566,10 @@ nodes created are then removed.  I devised this way of doing it
 because it is straightforward to see that it completely reuses the
 proof of the split operation.
 
-It seems likely to me that one can devise a variant of this mehthod
-for concatenating B-trees of different heights that only creates nodes
-if they are present in the final B-tree.  I suspect it would add at
-most a few more cases that need to be proved.  I have not done that
-yet.
+It seems likely to me that one can devise a variant of this method for
+concatenating B-trees of different heights that only creates nodes if
+they are present in the final B-tree.  I suspect it would add at most
+a few more cases that need to be proved.  I have not done that yet.
 
 Even if that never happens, note that at most H2-H1 nodes are created,
 and this is O(log N) in the size of the largest B-tree involved, so
@@ -701,6 +705,28 @@ that exist in earlier sub-trees.
 
 
 # Details to double check later
+
+TBD: I believe that all of the proofs for the split and concatenate
+operations should continue to work when the value of B is chosen
+independently for each node height.  For example, one could change the
+invariants (I5) and (I6) to be:
+
+(I5-alt) All nodes at height h have at most B(h) children.
+
+(I6-alt) All nodes at height h that are not the root node have at
+         least b(h)=ceiling(B(h)/2) children.  The root node as at
+         least 2 children, unless there is only one key/value pair in
+         the entire tree, in which case the root has 1 child.
+
+I believe this generalization is useful and practical, especially if
+one wants to customize the branching factor of certain heights for the
+storage sizes of nodes at that height, and the storage medium
+involved.  For example, if one wanted to have a B-tree representing an
+immutable vector where each element was an individual bit, it might
+make sense to have B=32 maximum branching factor for heights 2 and
+larger, but to have a much larger branching factor for height 1 nodes,
+so that a height 1 node can store 64 bytes worth of bits, e.g. 256
+bits, rather than only 32.
 
 TBD: Compare this terminology with that used in Clojure source code
 for PersistentVector and Vector.
