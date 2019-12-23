@@ -653,9 +653,9 @@ least b children) at all.  Instead they satisfy these invariants:
 (I8) All internal nodes that are not on the right fringe have exactly
      B children, as do all array nodes.
 
-(I9) Internal nodes on the right fringe (except the one array node on
-     the right fringe) must have at least one child, but are allowed
-     to have less than B children.
+(I9) Except for the one array node on the right fringe, all internal
+     nodes on the right fringe must have at least one child.  They are
+     allowed to have less than B children.
 
 The tail array serves several purposes:
 
