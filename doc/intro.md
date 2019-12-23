@@ -18,8 +18,10 @@ small constant factor slower.
 The research papers about the RRB tree data structure claim that it
 provides this O(log N) worst case time concatenation, but everything I
 have read so far on RRB trees leave out some details of implementation
-that are not clear to me precisely how they should be performed, and
-[all of the RRB Tree implementations I have found so
+that are not clear to me precisely how they should be performed, in
+particular for split (i.e. creating a sub-vector) and join
+(i.e. concatenating two vectors) operations, and [all of the RRB Tree
+implementations I have found so
 far](https://github.com/clojure/core.rrb-vector/blob/master/doc/rrb-tree-notes.md)
 have errors.  Without clearly stated invariants, it can be difficult
 to approach an existing implementation and see what changes ought to
@@ -28,9 +30,9 @@ preserving the performance guarantees.
 
 So while this article may be extended to give details on how all
 operations are implemented efficiently, the focus here is on ensuring
-that creating a sub-vector of an existing vector, and creating a
-concatenation of two existing vectors, can be done in worst case O(log
-N) time.
+that creating a sub-vector of an existing vector (split), and creating
+a concatenation of two existing vectors (join), can be done in worst
+case O(log N) time.
 
 I thank Glen Peterson for pointing out in the comments and code of the
 `RrbTree` class of his [Paguro
@@ -42,11 +44,11 @@ methods of maintaining them before I did.  I have not checked his code
 carefully enough to tell.
 
 Even if he did not, I would be very surprised if no one else has
-already devised proofs of the things below, given how long B-trees
-have been known about.  If you know of a published work somewhere that
-covers this, I would very much appreciate a reference to it.  I have
-not found such a thing yet.  The closest I have seen is exercise 18-2
-in the following algorithms textbook.  However, that exercise is
+previosly devised proofs of the facts below, given how long B-trees
+have been known and used.  If you know of a published work somewhere
+that covers this, I would very much appreciate a reference to it.  I
+have not found such a thing yet.  The closest I have seen is exercise
+18-2 in the following algorithms textbook.  However, that exercise is
 limited to B-trees with B=4.
 
 + Thomas E. Cormen, Charles E. Lieserson, Ronald L. Rivest, Clifford
@@ -86,7 +88,8 @@ nodes, where all of those child nodes are distinct from the root node.
 If there are any nodes besides the root, each of them also has a
 possibly empty ordered sequence of child nodes.  There are no cycles
 in the parent-child relationships, i.e. no node can be its own parent,
-grandparent, or ancestor of any kind.
+grandparent, or ancestor of any kind.  Also, every node other than the
+root has exactly one parent.
 
 The figure below gives one example of a rooted ordered tree.  Rooted
 trees are typically drawn with edges (i.e. lines) indicating
@@ -124,10 +127,11 @@ implement data structures like a Clojure sorted map.  That is, they
 can represent a set of key/value pairs where all keys are distinct,
 and can be sorted by a [total
 order](https://en.wikipedia.org/wiki/Total_order), e.g. integers by
-the order `<=`, or strings sorted lexicographically.  The values can
-be arbitrary, i.e. they need not be distinct, and need not have any
-sorted order relative to each other.  B-trees support efficient lookup
-of the value associated with a given key, and many other operations.
+the order `<=`, or strings sorted lexicographically.  The values in
+the key/value pairs can be arbitrary, i.e. they need not be distinct,
+and need not have any sorted order relative to each other.  B-trees
+support efficient lookup of the value associated with a given key, and
+many other operations.
 
 We will begin our discussion of B-trees this way, and then later
 specialize them for use in representing vectors, where the keys are
@@ -164,9 +168,10 @@ The invariants that a B-tree must satisfy are:
 
 (I5) All nodes have at most B children.
 
-(I6) All non-root internal nodes have at least b children.  The root
-     node has at least 2 children, unless there is only one key/value
-     pair in the entire tree, in which case the root has 1 child.
+(I6) If there are any internal nodes that are not the root, they have
+     at least b children.  The root node has at least 2 children,
+     unless there is only one key/value pair in the entire tree, in
+     which case the root has 1 child.
 
 (I7) All internal nodes with A >= 2 children contain A-1 keys.  If we
      number the children, in order, from c[0] up to c[A-1], and the
@@ -235,9 +240,9 @@ of "left" with "right", and "first" with "last".
 
 ### B-tree examples, and consequences of the invariants
 
-These example B-trees have max branching B=5, and minimum branch
-factor b=3.  Each represents a subset (or all of) this collection of
-key/value pairs:
+These example B-trees have maximum branch factor B=5, and minimum
+branch factor b=3.  Each represents a subset (or all of) this
+collection of key/value pairs:
 
 | Key | Value     |
 | --- | --------- |
@@ -334,8 +339,8 @@ operation.
 First, observe that in tree T', all internal nodes have the same
 number of children they had in T, except perhaps for some of the nodes
 in the left fringe of T'.  If we can find a way to correct those
-nodes, and preferably a small number of others "near" them, that would
-be good.
+nodes, preferably replacing at most a small number of other nodes,
+that would be good.
 
 As a special case, if the number of remaining leaves is at most B,
 then we can simply make all of them children of a new root node, and
@@ -344,7 +349,7 @@ the resulting tree satisfies all invariants.
 Otherwise, we will begin by finding the leaf node in the left fringe
 of T', examine its parent node F, try "fixing up" F's number of
 children, then work our way upwards along the left fringe towards the
-root.  Thus F has at least one child.
+root.  F has at least one child.
 
 There are several cases to consider.  In all of them, all nodes
 originally have at most B children in T, and so have at most B
@@ -406,6 +411,10 @@ F, which like case (split4) reduces the number of children of the
 current F's parent by 1, and we might hit this case again, but
 eventually at some ancestor of the current F we must hit a different
 case.
+
+When we are done traversing from F being the parent of a leaf node,
+all the way up to the root, we may still have a little bit more work
+to do.
 
 It is possible that the root node might have only one child remaining,
 even if we never hit case (split1), e.g. if we hit case (split4) for
@@ -527,11 +536,12 @@ height H2.  We will walk through the details for the case H1 < H2.
 The case H1 > H2 is handled similarly -- it is simply the "mirror
 image" of the case H1 < H2.
 
-If R2 has less than B children, create a new left child node R2.  If
-H1 = H2-1, then make R1 the new left child of R2.  If H1 < H2-1, then
-make a path containing (H2-1-H1) new nodes, the first of which is the
-new left child of R2, and the last of which is the parent of R1.  This
-will cause the resulting tree to have all leaves at the same depth.
+If R2 has less than B children, create a new left child node of R2.
+If H1 = H2-1, then make R1 the new left child of R2.  If H1 < H2-1,
+then make a path containing (H2-1-H1) new nodes, the first of which is
+the new left child of R2, and the last of which is the parent of R1.
+This will cause the resulting tree to have all leaves at the same
+depth.
 
 If R2 has B children, then make a new root node R3 with right child
 R2, and left child a path of (H2-H1) nodes, the last of which is a
@@ -539,32 +549,31 @@ parent of R1.  Again, this causes the resulting tree to have all
 leaves at the same depth.
 
 This tree might satisfy all invariants, and if so, we are done.  If it
-does not satisfy all invariants, it will be because R1 has less than b
-children, but also because some of the new nodes added only have 1
-child.
+does not satisfy all invariants, it might be because R1 has less than
+b children, but it could also because some of the new nodes added only
+have one child.
 
 The key thing to notice is that even if the tree does not satisfy all
 invariants, we can view it as a tree that _could be the result_ of
 starting with a tree that satisfied all invariants, and then we did a
 split operation that kept only the keys at least the smallest key that
-is now in the tree.  The left fringe nodes contain some nodes from T2,
-and perhaps some new ones.  All descendants of R2 already satisfy the
-invariants, so we can start with R2 and work our way up, fixing up the
-tree so it satisfies the invariants, as described in the section on
-the split operation.
+is now in the tree.  The left fringe nodes contain some nodes from T1,
+perhaps some new nodes, and perhaps also R2.  All descendants of R1
+already satisfy the invariants, so we can start with R1 and work our
+way up, fixing up the tree so it satisfies the invariants, as
+described in the section on the split operation.
 
 If it is any clearer, there is another way to view it: The algorithm
 for fixing up a tree after removing nodes for a split works on any
 tree for which the only nodes that violate the invariants are all on
 the left fringe (or all on the right fringe), and they only violate
 them by having too few children.  The intermediate tree constructed by
-the method described above can also only violate invariants in that
-same way.
+the method described above can only violate invariants in that way.
 
-For this case, we will see in the examples that in some cases, the new
-nodes created are then removed.  I devised this way of doing it
-because it is straightforward to see that it completely reuses the
-proof of the split operation.
+We will see in the examples that in some cases, the new nodes created
+are then removed.  I devised this way of doing concatenation because
+it is straightforward to see that it completely reuses the proof of
+the split operation.
 
 It seems likely to me that one can devise a variant of this method for
 concatenating B-trees of different heights that only creates nodes if
@@ -584,7 +593,7 @@ enough that an example is not necessary.  We will give a couple of
 examples where T1 has height less than T2.
 
 
-#### Concatenate T1 to larger height T2 that has fewer than B children in its root
+#### Concatenate T1 with larger height T2 that has fewer than B children in its root
 
 In the first concatenation example, T2's root node R2 has fewer than B
 children, so we add a new child to R2, then fix up the left fringe
@@ -593,7 +602,7 @@ from R1 on up, as we did for a split operation.
 <img src="images/b-tree-order-5-concatenate-example-1.png" alt="Concatenate T1 with larger height T2, T2 has root with less than B children" width="800" align="middle">
 
 
-#### Concatenate T1 to larger height T2 that has B children in its root
+#### Concatenate T1 with larger height T2 that has B children in its root
 
 In this concatenation example, T2's root node R2 has B children, so we
 add a new parent of R2, and a path from that new root to R1, then fix
@@ -641,8 +650,8 @@ tail is also empty).
 PVs do not satisfy (I6) (i.e. all non-root internal nodes have at
 least b children) at all.  Instead they satisfy these invariants:
 
-(I8) All internal nodes that are not on the right fringe, and all
-     array nodes, have exactly B children.
+(I8) All internal nodes that are not on the right fringe have exactly
+     B children, as do all array nodes.
 
 (I9) Internal nodes on the right fringe (except the one array node on
      the right fringe) must have at least one child, but are allowed
@@ -664,7 +673,7 @@ The tail array serves several purposes:
 
 A good property of the PV invariants, "packing everything to the left"
 in the tree, is that one can start at the root, and use the desired
-vector element index value `i` and very tiny amount of integer
+vector element index value `i` and a very tiny amount of integer
 arithmetic to determine which child to go to next, and you will end up
 at the element at index `i`.
 
@@ -706,7 +715,7 @@ that exist in earlier sub-trees.
 
 # Details to double check later
 
-TBD: I believe that all of the proofs for the split and concatenate
+TBD: I believe that all of the proofs for the split and join
 operations should continue to work when the value of B is chosen
 independently for each node height.  For example, one could change the
 invariants (I5) and (I6) to be:
@@ -714,7 +723,7 @@ invariants (I5) and (I6) to be:
 (I5-alt) All nodes at height h have at most B(h) children.
 
 (I6-alt) All nodes at height h that are not the root node have at
-         least b(h)=ceiling(B(h)/2) children.  The root node as at
+         least b(h)=ceiling(B(h)/2) children.  The root node has at
          least 2 children, unless there is only one key/value pair in
          the entire tree, in which case the root has 1 child.
 
@@ -725,8 +734,8 @@ involved.  For example, if one wanted to have a B-tree representing an
 immutable vector where each element was an individual bit, it might
 make sense to have B=32 maximum branching factor for heights 2 and
 larger, but to have a much larger branching factor for height 1 nodes,
-so that a height 1 node can store 64 bytes worth of bits, e.g. 256
-bits, rather than only 32.
+so that a height 1 node can store 64 bytes worth of bits, e.g. 512
+bits, rather than only 32 bits.
 
 TBD: Compare this terminology with that used in Clojure source code
 for PersistentVector and Vector.
