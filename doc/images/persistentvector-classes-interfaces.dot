@@ -1,0 +1,217 @@
+digraph {
+
+graph [rankdir=LR];
+node [shape=box];
+
+Legend [label="Solid rectangles are classes.\lDashed rectangles are interfaces.\l\lClass names without package prefix\lare in package clojure.lang\lAn arrow from a class to a class,\lor interface to interface,\lrepresents Java 'extends' keyword.\l\lAn arrow from a class to an interface\lrepresents Java 'implements' keyword.\l"];
+Legend -> Legend2;
+
+Legend2 [label="The following are direct relationships\lin the source code,\lbut are not shown in the drawing\lbecause they are redundant:\l\l  APersistentVector\l    implements Iterable\l  APersistentVector$RSeq\l    implements Counted\l  ASeq\l    implements java.io.Serializable\l  PersistentVector$TransientVector\l    implements Counted\l"];
+Legend2 -> Legend3;
+
+Legend3 [label="The following nodes\lhave multiple copies in the drawing,\lto reduce the number\lof long or crossing lines:\l\l  Counted\l  IHashEq\l  Sequential\l  java.io.Serializable\l  java.lang.Object\l"];
+Legend3 -> Legend4;
+
+Legend4 [label="TBD: Why do these classes _not_\limplement IReduce?\l\l  APersistentVector$ChunkedSeq\l  APersistentVector$RSeq\l  APersistentVector$Subvector\l\lTBD: Why do these classes _not_\limplement IKVReduce?\l\l  APersistentVector$ChunkedSeq\l  APersistentVector$Seq\l  APersistentVector$RSeq\l  APersistentVector$Subvector\l"];
+Legend4 -> Legend5;
+
+Legend5 [label="TBD: Why do these relationships\l_not_ exist?\l\l  APersistentVector$Subvector\l    implements IEditableCollection\l  PersistentVector$ChunkedSeq\l    implements IndexedSeq\l"];
+
+// Legend4 [label="TBD: Why do these classes _not_\l
+// implement IReduce?\l
+// \l
+//   APersistentVector$ChunkedSeq\l
+//   APersistentVector$RSeq\l
+//   APersistentVector$Subvector\l
+// \l
+// TBD: Why do these classes _not_\l
+// implement IKVReduce?\l
+// \l
+//   APersistentVector$ChunkedSeq\l
+//   APersistentVector$Seq\l
+//   APersistentVector$RSeq\l
+//   APersistentVector$Subvector\l
+// \l
+// TBD: Why do these relationships _not_ exist?\l
+// \l
+//   APersistentVector$Subvector\l
+//     implements IEditableCollection\l
+//   PersistentVector$ChunkedSeq\l
+//     implements IndexedSeq\l"];
+
+
+PersistentVector [label="class\lPersistentVector\l" style=bold];  // done
+PersistentVector -> APersistentVector; // class extends class (explicit)
+PersistentVector -> IObj;
+PersistentVector -> IEditableCollection;
+PersistentVector -> IReduce;
+PersistentVector -> IKVReduce;
+
+PersistentVector__Node [label="inner class\lPersistentVector$Node\l" style=bold]; // Done
+PersistentVector__Node -> Object_copy1; // class extends class (implicit)
+PersistentVector__Node -> Serializable_copy1;
+
+PersistentVector__ChunkedSeq [label="inner class\lPersistentVector$ChunkedSeq\l" style=bold]; // done
+PersistentVector__ChunkedSeq -> ASeq; // class extends class (explicit)
+PersistentVector__ChunkedSeq -> IChunkedSeq;
+PersistentVector__ChunkedSeq -> Counted_copy1;
+
+PersistentVector__TransientVector [label="inner class\lPersistentVector$TransientVector\l" style=bold]; // done
+PersistentVector__TransientVector -> AFn; // class extends class (explicit)
+PersistentVector__TransientVector -> ITransientVector;
+PersistentVector__TransientVector -> ITransientAssociative2;
+//PersistentVector__TransientVector -> Counted_copy5;
+
+APersistentVector [label="abstract class\lAPersistentVector\l" style=bold]; // done
+APersistentVector -> AFn; // class extends class (explicit)
+APersistentVector -> IPersistentVector;
+//APersistentVector -> Iterable;
+APersistentVector -> List;
+APersistentVector -> RandomAccess;
+APersistentVector -> Comparable;
+APersistentVector -> Serializable_copy2;
+APersistentVector -> IHashEq_copy1;
+
+APersistentVector__Seq [label="inner class\lAPersistentVector$Seq\l" style=bold]; // done
+APersistentVector__Seq -> ASeq; // class extends class (explicit)
+APersistentVector__Seq -> IndexedSeq;
+APersistentVector__Seq -> IReduce;
+
+APersistentVector__RSeq [label="inner class\lAPersistentVector$RSeq\l" style=bold]; // done
+APersistentVector__RSeq -> ASeq; // class extends class (explicit)
+APersistentVector__RSeq -> IndexedSeq;
+//APersistentVector__RSeq -> Counted_copy3;
+
+APersistentVector__SubVector [label="inner class\lAPersistentVector$SubVector\l" style=bold]; // done
+APersistentVector__SubVector -> APersistentVector; // class extends class (explicit)
+APersistentVector__SubVector -> IObj;
+
+ASeq [label="abstract class\lASeq\l" style=bold]; // done
+ASeq -> Obj; // class extends class (explicit)
+ASeq -> ISeq;
+ASeq -> Sequential_copy1;
+ASeq -> List;
+//ASeq -> Serializable_copy3;
+ASeq -> IHashEq_copy2;
+
+AFn [label="abstract class\lAFn\l" style=bold]; // done
+AFn -> Object_copy2; // class extends class (implicit)
+AFn -> IFn;
+
+Obj [label="abstract class\lObj\l" style=bold]; // done
+Obj -> Object_copy3; // class extends class (implicit)
+Obj -> IObj_copy1;
+Obj -> Serializable_copy4;
+
+IObj_copy1 [label="interface\lIObj\l(see elsewhere in drawing for details.\lThis is a copy to avoid long connecting lines.)\l" style=dashed];
+
+IObj [label="interface\lIObj\l  withMeta\l\l" style=dashed]; // done
+IObj -> IMeta;
+
+IMeta [label="interface\lIMeta\l  meta\l" style=dashed]; // done
+
+IEditableCollection [label="interface\lIEditableCollection\l  asTransient\l" style=dashed]; // done
+
+IReduce [label="interface\lIReduce\l  reduce (1 arg)\l" style=dashed]; // done
+IReduce -> IReduceInit;
+
+IReduceInit [label="interface\lIReduceInit\l  reduce (2 args)\l" style=dashed]; // done
+
+IKVReduce [label="interface\lIKVReduce\l  kvreduce\l" style=dashed]; // done
+
+Serializable_copy1 [label="interface\ljava.io.Serializable\l  (no methods)\l" style=dashed];  // done
+Serializable_copy2 [label="interface\ljava.io.Serializable\l  (no methods)\l" style=dashed];  // done
+//Serializable_copy3 [label="interface\ljava.io.Serializable\l  (no methods)\l" style=dashed];  // done
+Serializable_copy4 [label="interface\ljava.io.Serializable\l  (no methods)\l" style=dashed];  // done
+
+IChunkedSeq [label="interface\lIChunkedSeq\l  chunkedFirst\l  chunkedNext\l  chunkedMore\l" style=dashed]; // done
+IChunkedSeq -> ISeq;
+IChunkedSeq -> Sequential_copy1;
+
+Counted_copy1 [label="interface\lCounted\l  count\l" style=dashed]; // done
+Counted_copy2 [label="interface\lCounted\l  count\l" style=dashed]; // done
+//Counted_copy3 [label="interface\lCounted\l  count\l" style=dashed]; // done
+Counted_copy4 [label="interface\lCounted\l  count\l" style=dashed]; // done
+//Counted_copy5 [label="interface\lCounted\l  count\l" style=dashed]; // done
+
+ITransientVector [label="interface\lITransientVector\l  assocN\l  pop\l" style=dashed]; // done
+ITransientVector -> ITransientAssociative;
+ITransientVector -> Indexed;
+
+ITransientAssociative [label="interface\lITransientAssociative\l  assoc\l" style=dashed]; // done
+ITransientAssociative -> ITransientCollection;
+ITransientAssociative -> ILookup;
+
+Indexed [label="interface\lIndexed\l  nth (1 and 2 args)\l" style=dashed]; // done
+Indexed -> Counted_copy4;
+
+ITransientCollection [label="interface\lITransientCollection\l  conj\l  persistent\l" style=dashed]; // done
+
+ILookup [label="interface\lILookup\l  valAt (1 and 2 args)\l" style=dashed]; // done
+
+ITransientAssociative2 [label="interface\lITransientAssociative2\l  containsKey\l  entryAt\l" style=dashed]; // done
+ITransientAssociative2 -> ITransientAssociative;
+
+IPersistentVector [label="interface\lIPersistentVector\l  length\l  assocN\l  cons\l" style=dashed]; // done
+IPersistentVector -> Associative;
+IPersistentVector -> Sequential_copy2;
+IPersistentVector -> IPersistentStack;
+IPersistentVector -> Reversible;
+IPersistentVector -> Indexed;
+
+Associative [label="interface\lAssociative\l  containsKey\l  entryAt\l  assoc\l" style=dashed]; // done
+Associative -> IPersistentCollection;
+Associative -> ILookup;
+
+IPersistentCollection [label="interface\lIPersistentCollection\l  count\l  cons\l  empty\l  equiv\l" style=dashed]; // done
+IPersistentCollection -> Seqable;
+
+Seqable [label="interface\lSeqable\l  seq\l" style=dashed]; // done
+
+Sequential_copy1 [label="interface\lSequential\l  (no methods)\l" style=dashed]; // done
+Sequential_copy2 [label="interface\lSequential\l  (no methods)\l" style=dashed]; // done
+
+IPersistentStack [label="interface\lIPersistentStack\l  peek\l  pop\l" style=dashed]; // done
+IPersistentStack -> IPersistentCollection;
+
+Reversible [label="interface\lReversible\l  rseq\l" style=dashed]; // done
+
+Iterable [label="interface\ljava.lang.Iterable\l  (see detailed version\l  in separate drawing.)\l" style=dashed]; // done
+
+List [label="interface\ljava.util.List\l  (see detailed version\l  in separate drawing.)\l" style=dashed];
+List -> Collection;
+
+Collection [label="interface\ljava.util.Collection\l  (see detailed version\l  in separate drawing.)\l" style=dashed]; // done
+Collection -> Iterable;
+
+RandomAccess [label="interface\ljava.util.RandomAccess\l  (no methods)\l" style=dashed]; // done
+
+Comparable [label="interface\ljava.lang.Comparable\l  compareTo\l" style=dashed]; // done
+
+IHashEq_copy1 [label="interface\lIHashEq\l  hasheq\l" style=dashed]; // done
+IHashEq_copy2 [label="interface\lIHashEq\l  hasheq\l" style=dashed]; // done
+
+IndexedSeq [label="interface\lIndexedSeq\l  index\l" style=dashed]; // done
+IndexedSeq -> ISeq;
+IndexedSeq -> Sequential_copy1;
+IndexedSeq -> Counted_copy2;
+
+ISeq [label="interface\lISeq\l  first\l  next\l  more\l  cons\l" style=dashed]; // done
+ISeq -> IPersistentCollection_copy1;
+
+IPersistentCollection_copy1 [label="interface\lIPersistentCollection\l(see elsewhere in drawing for details.\lThis is a copy to avoid long connecting lines.)\l" style=dashed];
+
+
+IFn [label="interface\lIFn\l  invoke (0 to 20 args)\l  invoke (20 + array args)\l  applyTo\l  358 inner interfaces\l    for combinations of\l    long/double/Object\l    args, with method\l    invokePrim\l" style=dashed]; // done
+IFn -> Callable;
+IFn -> Runnable;
+
+Callable [label="interface\ljava.util.concurrent.Callable\l  call\l" style=dashed]; // done
+
+Runnable [label="interface\ljava.lang.Runnable\l  run\l" style=dashed]; // done
+
+Object_copy1 [label="class\lObject\l" style=bold];
+Object_copy2 [label="class\lObject\l" style=bold];
+Object_copy3 [label="class\lObject\l" style=bold];
+
+}
