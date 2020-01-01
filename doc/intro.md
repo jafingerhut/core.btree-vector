@@ -685,9 +685,12 @@ and his Master's thesis linked earlier in this document.
 
 A disadvantage of the PV invariants is that, in general, there is no
 way to concatenate two vectors in less time than linear in the size of
-the second vector.  The range of number of allowed children in B-tree
-nodes is what enables fast concatenation, but also what makes looking
-up elements in a B-tree a little bit slower than in a PV tree.
+the second vector (I say "in general" because there are probably a few
+special sizes of PV vectors that permit fast concatenation, but they
+are the exception, not the rule).  The range of number of allowed
+children in B-tree nodes is what enables fast concatenation, but also
+what makes looking up elements in a B-tree a little bit slower than in
+a PV tree.
 
 
 ### Why store relative index values instead of absolute ones?
