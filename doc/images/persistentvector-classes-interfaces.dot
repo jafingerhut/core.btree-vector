@@ -6,10 +6,11 @@ node [shape=box];
 Legend [label="Solid rectangles are classes.\lDashed rectangles are interfaces.\l\lClass names without package prefix\lare in package clojure.lang\lAn arrow from a class to a class,\lor interface to interface,\lrepresents Java 'extends' keyword.\l\lAn arrow from a class to an interface\lrepresents Java 'implements' keyword.\l"];
 Legend -> Legend2;
 
-Legend2 [label="The following are direct relationships\lin the source code,\lbut are not shown in the drawing\lbecause they are redundant:\l\l  APersistentVector\l    implements Iterable\l  APersistentVector$RSeq\l    implements Counted\l  ASeq\l    implements java.io.Serializable\l  PersistentVector$TransientVector\l    implements Counted\l"];
+Legend2 [label="The following are direct relationships\lin the source code,\lbut are not shown in the drawing\lbecause they are redundant:\l\l  APersistentVector\l    implements Iterable\l  APersistentVector$RSeq\l    implements Counted\l  ASeq\l    implements java.io.Serializable\l  PersistentVector$TransientVector\l    implements Counted\l\l  clojure.core.VecSeq\l    implements ISeq\l  clojure.core.Vec implements all of:\l    Counted, IMeta, Indexed,\l    IPersistentCollection,\l    IPersistentStack, Reversible,\l    Associative, ILookup, Seqable,\l    Sequential, Iterable, Collection\l  clojure.core.ArrayChunk\l    implements Indexed\l"];
+
 Legend2 -> Legend3;
 
-Legend3 [label="The following nodes\lhave multiple copies in the drawing,\lto reduce the number\lof long or crossing lines:\l\l  Counted\l  IHashEq\l  Sequential\l  java.io.Serializable\l  java.lang.Object\l"];
+Legend3 [label="The following nodes\lhave multiple copies in the drawing,\lto reduce the number\lof long or crossing lines:\l\l  Counted\l  IFn\l  IHashEq\l  IObj\l  IPersistentCollection\l  Sequential\l  java.io.Serializable\l\lIf a class extends java.lang.Object\ldirectly, that is not shown.\l"];
 Legend3 -> Legend4;
 
 Legend4 [label="TBD: Why do these classes _not_\limplement IReduce?\l\l  APersistentVector$ChunkedSeq\l  APersistentVector$RSeq\l  APersistentVector$Subvector\l\lTBD: Why do these classes _not_\limplement IKVReduce?\l\l  APersistentVector$ChunkedSeq\l  APersistentVector$Seq\l  APersistentVector$RSeq\l  APersistentVector$Subvector\l"];
@@ -42,13 +43,13 @@ Legend5 [label="TBD: Why do these relationships\l_not_ exist?\l\l  APersistentVe
 
 PersistentVector [label="class\lPersistentVector\l" style=bold];  // done
 PersistentVector -> APersistentVector; // class extends class (explicit)
-PersistentVector -> IObj;
+PersistentVector -> IObj_copy2;
 PersistentVector -> IEditableCollection;
 PersistentVector -> IReduce;
 PersistentVector -> IKVReduce;
 
 PersistentVector__Node [label="inner class\lPersistentVector$Node\l" style=bold]; // Done
-PersistentVector__Node -> Object_copy1; // class extends class (implicit)
+//PersistentVector__Node -> Object_copy1; // class extends class (implicit)
 PersistentVector__Node -> Serializable_copy1;
 
 PersistentVector__ChunkedSeq [label="inner class\lPersistentVector$ChunkedSeq\l" style=bold]; // done
@@ -84,7 +85,7 @@ APersistentVector__RSeq -> IndexedSeq;
 
 APersistentVector__SubVector [label="inner class\lAPersistentVector$SubVector\l" style=bold]; // done
 APersistentVector__SubVector -> APersistentVector; // class extends class (explicit)
-APersistentVector__SubVector -> IObj;
+APersistentVector__SubVector -> IObj_copy3;
 
 ASeq [label="abstract class\lASeq\l" style=bold]; // done
 ASeq -> Obj; // class extends class (explicit)
@@ -95,18 +96,20 @@ ASeq -> List;
 ASeq -> IHashEq_copy2;
 
 AFn [label="abstract class\lAFn\l" style=bold]; // done
-AFn -> Object_copy2; // class extends class (implicit)
+//AFn -> Object_copy2; // class extends class (implicit)
 AFn -> IFn;
 
 Obj [label="abstract class\lObj\l" style=bold]; // done
-Obj -> Object_copy3; // class extends class (implicit)
-Obj -> IObj_copy1;
+//Obj -> Object_copy3; // class extends class (implicit)
+Obj -> IObj;
 Obj -> Serializable_copy4;
 
-IObj_copy1 [label="interface\lIObj\l(see elsewhere in drawing for details.\lThis is a copy to avoid long connecting lines.)\l" style=dashed];
-
-IObj [label="interface\lIObj\l  withMeta\l\l" style=dashed]; // done
+IObj [label="interface\lIObj\l  withMeta\l" style=filled fillcolor=gold2]; // done
 IObj -> IMeta;
+
+IObj_copy2 [label="interface\lIObj\l  (see elsewhere)\l" style=filled fillcolor=gold2];
+IObj_copy3 [label="interface\lIObj\l  (see elsewhere)\l" style=filled fillcolor=gold2];
+IObj_copy4 [label="interface\lIObj\l  (see elsewhere)\l" style=filled fillcolor=gold2];
 
 IMeta [label="interface\lIMeta\l  meta\l" style=dashed]; // done
 
@@ -149,10 +152,10 @@ ITransientCollection [label="interface\lITransientCollection\l  conj\l  persiste
 
 ILookup [label="interface\lILookup\l  valAt (1 and 2 args)\l" style=dashed]; // done
 
-ITransientAssociative2 [label="interface\lITransientAssociative2\l  containsKey\l  entryAt\l" style=dashed]; // done
+ITransientAssociative2 [label="interface\lITransientAssociative2\l  containsKey, entryAt\l" style=dashed]; // done
 ITransientAssociative2 -> ITransientAssociative;
 
-IPersistentVector [label="interface\lIPersistentVector\l  length\l  assocN\l  cons\l" style=dashed]; // done
+IPersistentVector [label="interface\lIPersistentVector\l  length, assocN, cons\l" style=dashed]; // done
 IPersistentVector -> Associative;
 IPersistentVector -> Sequential_copy2;
 IPersistentVector -> IPersistentStack;
@@ -163,13 +166,14 @@ Associative [label="interface\lAssociative\l  containsKey\l  entryAt\l  assoc\l"
 Associative -> IPersistentCollection;
 Associative -> ILookup;
 
-IPersistentCollection [label="interface\lIPersistentCollection\l  count\l  cons\l  empty\l  equiv\l" style=dashed]; // done
+IPersistentCollection [label="interface\lIPersistentCollection\l  count\l  cons\l  empty\l  equiv\l" style=filled fillcolor=green2]; // done
 IPersistentCollection -> Seqable;
 
 Seqable [label="interface\lSeqable\l  seq\l" style=dashed]; // done
 
-Sequential_copy1 [label="interface\lSequential\l  (no methods)\l" style=dashed]; // done
-Sequential_copy2 [label="interface\lSequential\l  (no methods)\l" style=dashed]; // done
+Sequential_copy1 [label="interface\lSequential\l  (no methods)\l" style=dashed];
+Sequential_copy2 [label="interface\lSequential\l  (no methods)\l" style=dashed];
+//Sequential_copy3 [label="interface\lSequential\l  (no methods)\l" style=dashed];
 
 IPersistentStack [label="interface\lIPersistentStack\l  peek\l  pop\l" style=dashed]; // done
 IPersistentStack -> IPersistentCollection;
@@ -190,28 +194,131 @@ Comparable [label="interface\ljava.lang.Comparable\l  compareTo\l" style=dashed]
 
 IHashEq_copy1 [label="interface\lIHashEq\l  hasheq\l" style=dashed]; // done
 IHashEq_copy2 [label="interface\lIHashEq\l  hasheq\l" style=dashed]; // done
+IHashEq_copy3 [label="interface\lIHashEq\l  hasheq\l" style=dashed]; // done
 
 IndexedSeq [label="interface\lIndexedSeq\l  index\l" style=dashed]; // done
 IndexedSeq -> ISeq;
 IndexedSeq -> Sequential_copy1;
 IndexedSeq -> Counted_copy2;
 
-ISeq [label="interface\lISeq\l  first\l  next\l  more\l  cons\l" style=dashed]; // done
+ISeq [label="interface\lISeq\l  first, next,\l  more, cons\l" style=dashed]; // done
 ISeq -> IPersistentCollection_copy1;
 
-IPersistentCollection_copy1 [label="interface\lIPersistentCollection\l(see elsewhere in drawing for details.\lThis is a copy to avoid long connecting lines.)\l" style=dashed];
+IPersistentCollection_copy1 [label="interface\lIPersistentCollection\l  (see elsewhere)\l" style=filled fillcolor=green2];
 
 
-IFn [label="interface\lIFn\l  invoke (0 to 20 args)\l  invoke (20 + array args)\l  applyTo\l  358 inner interfaces\l    for combinations of\l    long/double/Object\l    args, with method\l    invokePrim\l" style=dashed]; // done
+IFn [label="interface\lIFn\l  invoke (0 to 20 args)\l  invoke (20 + array args)\l  applyTo\l  358 inner interfaces\l    for combinations of\l    long/double/Object\l    args, with method\l    invokePrim\l" style=filled fillcolor=chocolate2]; // done
 IFn -> Callable;
 IFn -> Runnable;
+
+IFn_copy2 [label="interface\lIFn\l  (see elsewhere)\l" style=filled fillcolor=chocolate2];
 
 Callable [label="interface\ljava.util.concurrent.Callable\l  call\l" style=dashed]; // done
 
 Runnable [label="interface\ljava.lang.Runnable\l  run\l" style=dashed]; // done
 
-Object_copy1 [label="class\lObject\l" style=bold];
-Object_copy2 [label="class\lObject\l" style=bold];
-Object_copy3 [label="class\lObject\l" style=bold];
+//Object_copy1 [label="class\lObject\l" style=bold];
+//Object_copy2 [label="class\lObject\l" style=bold];
+//Object_copy3 [label="class\lObject\l" style=bold];
+//Object_copy4 [label="class\lObject\l" style=bold];
+//Object_copy5 [label="class\lObject\l" style=bold];
+//Object_copy6 [label="class\lObject\l" style=bold];
+//Object_copy7 [label="class\lObject\l" style=bold];
+
+VecNode [label="class (deftype)\lclojure.core.VecNode\l" style=filled fillcolor=turquoise1];
+//VecNode -> Object_copy4; // implicit
+VecNode -> IType;
+
+IType [label="interface\lIType\l  (Clojure implementation detail:\l  all types declared via 'deftype'\l  implement interface IType.\l  Usually not shown\l  in this drawing.)\l" style=dashed];
+//IType_copy2 [label="interface\lIType\l" style=dashed];
+//IType_copy3 [label="interface\lIType\l" style=dashed];
+//IType_copy4 [label="interface\lIType\l" style=dashed];
+
+IVecImpl [label="interface\lclojure.core.IVecImpl\l  tailoff, arrayFor, pushTail,\l  popTail, newPath, doAssoc\l" style=filled fillcolor=turquoise1];
+
+ArrayManager [label="interface\lclojure.core.ArrayManager\l  array\l  alength\l  aclone\l  aget\l  aset\l" style=filled fillcolor=turquoise1];
+
+ArrayChunk [label="class (deftype)\lclojure.core.ArrayChunk\l" style=filled fillcolor=turquoise1];
+//ArrayChunk -> Object_copy5; // implicit
+//ArrayChunk -> IType_copy2;
+//ArrayChunk -> Indexed;  // this implements relationship is redundant, since ArrayChunk implements Indexed indirectly through IChunk
+ArrayChunk -> IChunk;
+
+IChunk [label="interface\lIChunk\l  dropFirst\l  reduce\l" style=filled fillcolor=turquoise1];
+IChunk -> Indexed;
+
+VecSeq [label="class (deftype)\lclojure.core.VecSeq\l" style=filled fillcolor=turquoise1];
+//VecSeq -> Object_copy6; // implicit
+//VecSeq -> IType_copy3;
+VecSeq -> InternalReduce;
+//VecSeq -> ISeq;  // redundant through IChunkedSeq
+VecSeq -> Seqable;
+VecSeq -> IChunkedSeq;
+
+Vec [label="class (deftype)\lclojure.core.Vec\l" style=filled fillcolor=turquoise1];
+//Vec -> Object_copy7; // implicit
+//Vec -> IType_copy4;
+Vec -> IHashEq_copy3;
+//Vec -> Counted;  // redundant through IPersistentVector
+//Vec -> IMeta;  // redundant through IObj
+Vec -> IObj_copy4;
+//Vec -> Indexed;  // redundant through IPersistentVector
+//Vec -> IPersistentCollection;  // redundant through IPersistentVector
+//Vec -> IPersistentStack;  // redundant through IPersistentVector
+Vec -> IPersistentVector;
+//Vec -> Reversible;  // redundant through IPersistentVector
+//Vec -> Associative;  // redundant through IPersistentVector
+//Vec -> ILookup;  // redundant through IPersistentVector
+Vec -> IFn_copy2;
+//Vec -> Seqable;  // redundant through IPersistentVector
+//Vec -> Sequential_copy3;  // redundant through IPersistentVector
+Vec -> IVecImpl;
+Vec -> Comparable;
+//Vec -> Iterable;  // redundant through java.util.List
+//Vec -> Collection;  // redundant through java.util.List
+Vec -> List;
+
+InternalReduce [label="interface\lclojure.core.protocols.\l      InternalReduce\l  internal_reduce\l" style=filled fillcolor=turquoise1];
+
+// TBD: Do the *Seq classes Comparable, perhaps indirectly?  If not,
+// shouldn't they?
+
+// TBD: Why doesn't clojure.core.Vec implement IReduce or IKVReduce?  Is 
+
+// TBD: Does clojure.core.VecSeq implement IHashEq?  IObj?  If not,
+// should it?  Ticket CLJ-1364 has a proposed patch clj-1364.patch
+// written by Alex Miller that 2015-Oct-05 that adds implementations
+// of these methods for class clojure.core.VecSeq:
+
+// hashCode
+// equals
+// hasheq
+// iterator (in interface Iterable)
+
+// TBD: There is at least one case in methods
+// APersistentVector.doEquals() and APersistentVector.doEquiv() that
+// uses iterators to traverse the elements while comparing the vector
+// to the other collection, but some cases use Clojure's seq
+// abstraction, or nth() calls, instead, which seems to me likely to
+// allocate more memory and usually be less efficient.  Consider doing
+// experiments to see whether there is a noticeable performance
+// improvement by using iterators instead.
+
+// TBD: Similarly implementation of hasheq and hashCode go through
+// elements using nth() calls for each element.  Consider comparing
+// against an implementation that uses mutable iterator to traverse
+// the collection elements instead.
+
+// TBD: Similarly implementation of indexOf() and lastIndexOf() use
+// nth() instead of mutable iterator.  Is it possible/reasonable to
+// create a mutable iterator that goes through elements in reverse
+// order?  Does one already exist?
+
+// TBD: listIterator() implementation also uses nth().  Think if there
+// is a more efficient implementation that avoids using nth() except
+// when done with one array node.
+
+// TBD: iterator() uses nth(), and even has a comment "todo -
+// something more efficient".
 
 }

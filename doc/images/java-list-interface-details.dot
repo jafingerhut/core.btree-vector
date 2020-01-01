@@ -1,0 +1,14 @@
+digraph {
+
+graph [rankdir=LR];
+node [shape=box];
+
+List_details [label="interface\ljava.util.List\l    (First, methods that must be implemented.\l    This list omits any methods added after JDK 8.):\l\l    contains\l    containsAll\l    equals\l    get\l    hashCode\l    indexOf\l    isEmpty\l    iterator\l    lastIndexOf\l    listIterator 2 signatures:\l        listIterator()\l        listIterator(int index)\l    size\l    subList\l    default spliterator\l    toArray 2 signatures:\l        toArray()\l        toArray(T[] a)\l\l  (Methods that are optional, and Clojure throws\l  UnsupportedOperationException when called,\l  by design.):\l\l    add 2 signatures:\l        add(E e)\l        add(int index, E element)\l    addAll 2 signatures:\l        addAll(Collection<? extends E> c)\l        addAll(int index, Collection<? extends E> c)\l    clear\l    remove 2 signatures:\l        remove(Object o)\l        remove(int index)\l    removeAll\l    default replaceAll\l    retainAll\l    set\l    default sort\l" style=dashed]; // done
+List_details -> Collection_details;
+
+Collection_details [label="interface\ljava.util.Collection\l    - means in List, but not in Collection\l    + means not in List, but in Collection\l\l    (First, methods that must be implemented.\l    This list omits any methods added after JDK 8.):\l\l    contains\l    containsAll\l    equals\l-   get\l    hashCode\l-   indexOf\l    isEmpty\l    iterator\l-   lastIndexOf\l-   listIterator 2 signatures:\l-       listIterator()\l-       listIterator(int index)\l+   default parallelStream\l    size\l-   subList\l    default spliterator\l+   default stream\l+   toArray 3 signatures:\l        toArray()\l        toArray(T[] a)\l+       default toArray(IntFunction<T[]> generator)\l\l  (Methods that are optional, and Clojure throws\l  UnsupportedOperationException when called,\l  by design.):\l\l    add 1 signature:\l        add(E e)\l-       add(int index, E element)\l    addAll 1 signature:\l        addAll(Collection<? extends E> c)\l-       addAll(int index, Collection<? extends E> c)\l    clear\l    remove 1 signature:\l        remove(Object o)\l-       remove(int index)\l    removeAll\l+   default removeIf\l-   default replaceAll\l    retainAll\l-   set\l-   default sort\l" style=dashed]; // done
+Collection_details -> Iterable_details;
+
+Iterable_details [label="interface\ljava.lang.Iterable\l  iterator\l  default forEach\l  default spliterator\l" style=dashed]; // done
+
+}
