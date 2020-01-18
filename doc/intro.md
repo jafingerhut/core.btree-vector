@@ -760,3 +760,11 @@ operations"](#efficient-b-tree-split-operations) would need to be
 generalized to work when the right neighbor of a node on the left
 fringe is a leaf, instead of another internal node.  I do not know if
 that is even possible to do.
+
+Read more about the persistent sorted set implementation here, and see
+what is in common or different with the ideas above, and whether it
+implements more efficient merging of multiple persistent collections
+other than vectors based upon skipping over/preserving-unchanged large
+subsets of the tree data structures:
+
+https://github.com/tonsky/persistent-sorted-set

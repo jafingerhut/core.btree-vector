@@ -2,7 +2,9 @@ TARGETS= \
     java-list-interface-details.pdf \
     java-list-interface-details.png \
     persistentvector-classes-interfaces.pdf \
-    persistentvector-classes-interfaces.png
+    persistentvector-classes-interfaces.png \
+    reduce-details.pdf \
+    reduce-details.png
 
 all: $(TARGETS)
 
