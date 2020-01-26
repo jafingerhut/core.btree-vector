@@ -1,6 +1,6 @@
 # Introduction to core.btree-vector
 
-This document is unlikely to be of interest, unless you want to know
+This document describes
 how and why the data structures and operations in the
 core.btree-vector library work, and similarly for Clojure's built in
 vector data structure.
@@ -39,11 +39,10 @@ I thank Glen Peterson for pointing out in the comments and code of the
 library](https://github.com/GlenKPeterson/Paguro) that B-trees are a
 way to simplify understanding how to maintain tree invariants for a
 vector data structure that supports sub-vector and concatenation
-operations.  He may well have came up with these invariants and
-methods of maintaining them before I did.  I have not checked his code
-carefully enough to tell.
+operations.  He took these invariants from the paper,
+["RRB-Trees: Efficient Immutable Vectors" by Phil Bagwell and Tiark Rompf](https://infoscience.epfl.ch/record/169879?ln=en)
 
-Even if he did not, I would be very surprised if no one else has
+I would be very surprised if no one else has
 previosly devised proofs of the facts below, given how long B-trees
 have been known and used.  If you know of a published work somewhere
 that covers this, I would very much appreciate a reference to it.  I
@@ -58,15 +57,15 @@ limited to B-trees with B=4.
 ## Using invariants to develop programs
 
 One good way to reason carefully about all possible behaviors of a
-program is by stating, and mathematically proving, conditions that
+program is by stating, mathematically proving, and testing for conditions that
 must be true at all times during the program's execution.  Such a
 condition is called an _invariant_, meaning "unchanging", in the sense
 that the condition remains true always.
 
 When implementing a data structure, such invariants are often stated
-based upon the "shape" and contents of the data structure.  Then, show
-how every operation on that data structure "maintains the invariant",
-i.e. if the initial data structure given as input(s) to the operations
+based upon the "shape" and contents of the data structure.
+Every operation on that data structure must "maintain the invariant",
+ensuring that if the initial data structure(s) given as input(s) to the operations
 satisfy the invariant, then the final data structure does, too.
 
 Aside: There are likely better introductions to invariants for simple
@@ -84,12 +83,12 @@ structures, feel free to skip this section.
 
 A rooted ordered tree is a tree where there is a distinguished _root
 node_.  The root node has a (possibly empty) ordered sequence of child
-nodes, where all of those child nodes are distinct from the root node.
+nodes.
 If there are any nodes besides the root, each of them also has a
 possibly empty ordered sequence of child nodes.  There are no cycles
 in the parent-child relationships, i.e. no node can be its own parent,
-grandparent, or ancestor of any kind.  Also, every node other than the
-root has exactly one parent.
+grandparent, or ancestor of any kind (it's acyclic).
+Also, every node other than the root has exactly one parent.
 
 The figure below gives one example of a rooted ordered tree.  Rooted
 trees are typically drawn with edges (i.e. lines) indicating
