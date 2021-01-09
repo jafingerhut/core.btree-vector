@@ -676,7 +676,45 @@ A good property of the PV invariants, "packing everything to the left"
 in the tree, is that one can start at the root, and use the desired
 vector element index value `i` and a very tiny amount of integer
 arithmetic to determine which child to go to next, and you will end up
-at the element at index `i`.
+at the element at index `i`.  You can find the code that does this in
+the Clojure/JVM implementation in file `PersistentVector.java`, method
+`arrayFor` and `nth`, copied below (with minor editing for my
+preferred indentation style, and addition of comments to emphasize the
+simple arithmetic part:
+
+```
+public Object[] arrayFor(int i) {
+    if (i >= 0 && i < cnt) {
+	if (i >= tailoff()) {
+	    return tail;
+	}
+	Node node = root;
+	/* Here is the simple arithmetic part.  `shift` is a multiple
+	 * of 5 stored as a field in the PersistentVector object,
+	 * which is:
+  	 * + 5 for vectors up to 2^10 elements (plus up to 32 more in
+  	 *   the tail)
+	 * + 10 for vectors up to 2^15 elements (plus up to 32 more in
+	 *   the tail)
+	 * + 5*j for vectors up to 2^(5*j+5) elements (plus up to 32
+	 *   more in the tail)
+	 */
+	for (int level = shift; level > 0; level -= 5) {
+	    node = (Node) node.array[(i >>> level) & 0x01f];
+	}
+	return node.array;
+    }
+    throw new IndexOutOfBoundsException();
+}
+
+public Object nth(int i) {
+    Object[] node = arrayFor(i);
+    /* And this is the corresponding last bit of simple arithmetic
+     * part once the array node of the tree, or that the element is in
+     * the tail, has been determined. */
+    return node[i & 0x01f];
+}
+```
 
 A good source for more details on that property, and many others, with
 examples, is Jean Niklas L'orange's series of articles ["Understanding
