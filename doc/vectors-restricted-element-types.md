@@ -28,7 +28,7 @@ ClojureScript has a function `vector`, but no `vector-of`.
 
 I have recently learned that at least some JavaScript runtimes have
 the capability of creating arrays of primitive/unboxed numbers.  Here
-are some rferences to more details on how to create them using
+are some references to more details on how to create them using
 JavaScript.
 
 + https://developer.mozilla.org/en-US/docs/Web/JavaScript/Typed_arrays

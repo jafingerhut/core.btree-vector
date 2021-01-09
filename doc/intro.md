@@ -648,14 +648,15 @@ the end of the vector (minor exception: if the vector is empty, the
 tail is also empty).
 
 PVs do not satisfy (I6) (i.e. all non-root internal nodes have at
-least b children) at all.  Instead they satisfy these invariants:
+least b children).  Instead they satisfy these invariants:
 
 (I8) All internal nodes that are not on the right fringe have exactly
      B children, as do all array nodes.
 
-(I9) Except for the one array node on the right fringe, all internal
-     nodes on the right fringe must have at least one child.  They are
-     allowed to have less than B children.
+(I9) All internal nodes on the right fringe must have at least one
+     child.  They are allowed to have less than B children.
+     Exception: the one array node on the right fringe must have
+     exactly B children, as required by (I8).
 
 The tail array serves several purposes:
 
@@ -668,7 +669,7 @@ The tail array serves several purposes:
   new element is appended and the tail contains B elements.
 + It makes it fast and simple to preserve the invariants that all
   array nodes have B children, because a new array node is only added
-  to the tree when the tail contains a full B=32 elements, then a new
+  to the tree when the tail contains a full B elements, then a new
   element is appended.
 
 A good property of the PV invariants, "packing everything to the left"
