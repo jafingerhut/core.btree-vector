@@ -669,8 +669,7 @@ The tail array serves several purposes:
   new element is appended and the tail contains B elements.
 + It makes it fast and simple to preserve the invariants that all
   array nodes have B children, because a new array node is only added
-  to the tree when the tail contains a full B elements, then a new
-  element is appended.
+  to the tree when the tail contains a full B elements.
 
 A good property of the PV invariants, "packing everything to the left"
 in the tree, is that one can start at the root, and use the desired
@@ -682,7 +681,7 @@ the Clojure/JVM implementation in file `PersistentVector.java`, method
 preferred indentation style, and addition of comments to emphasize the
 simple arithmetic part:
 
-```
+```java
 public Object[] arrayFor(int i) {
     if (i >= 0 && i < cnt) {
 	if (i >= tailoff()) {
