@@ -710,8 +710,8 @@ public Object[] arrayFor(int i) {
 public Object nth(int i) {
     Object[] node = arrayFor(i);
     /* And this is the corresponding last bit of simple arithmetic
-     * part once the array node of the tree, or that the element is in
-     * the tail, has been determined. */
+     * part, done after the the array node of the tree has been
+     * determined, or that the element is in the tail array. */
     return node[i & 0x01f];
 }
 ```
@@ -724,11 +724,11 @@ and his Master's thesis linked earlier in this document.
 
 A disadvantage of the PV invariants is that, in general, there is no
 way to concatenate two vectors in less time than linear in the size of
-the second vector (I say "in general" because there are probably a few
+the second vector (I say "in general" because there are a few
 special sizes of PV vectors that permit fast concatenation, but they
 are the exception, not the rule).  The range of number of allowed
 children in B-tree nodes is what enables fast concatenation, but also
-what makes looking up elements in a B-tree a little bit slower than in
+what makes looking up elements in a B-tree a bit slower than in
 a PV tree.
 
 
@@ -737,7 +737,7 @@ a PV tree.
 Clojure PersistentVector trees are "left-packed trees", as described
 in the previous section.  This is good for efficiently finding a leaf
 by its index with only a little bit of arithmetic, and no keys
-necessary to be stored in any of the nodes.
+need to be stored in any of the nodes.
 
 Left-packed trees are also good if all operations that add new
 elements, or remove elements, are done at the maximum index, i.e. on
@@ -755,22 +755,22 @@ Clojure's core library was designed with a strong preference to only
 supply operations with good performance guarantees.  It is possible to
 support all of these operations efficiently with B-tree vectors, both
 at the beginning and end of a vector, so we should give names to the
-at-the-beginning operations.  We will use `conjl` for adding a new
-element at the beginning of a vector (at index 0), for "conj at the
-left", and `popl` for removing an element at the beginning of a
-vector, for "pop at the left".
+at-the-beginning operations.  We will use `conjl`, for "conj at the
+left", for adding a new element at the beginning of a vector (at index
+0), and `popl`, for "pop at the left", for removing an element at the
+beginning of a vector.
 
 There are multiple choices in how to support `conjl` and `popl`
-efficiently for vectors implemented using B-tree.
+efficiently for vectors implemented using B-trees.
 
 One choice is to introduce a "head" array, similar to Clojure
 PersistentVector's tail array.  Like the tail array, the head array is
-an array node, and can hold as many elements as other array nodes.
-Using a head array makes it straightforward to implement O(1) worst
-case access time to the first element.  It can also be used to make
-`conjl` operations usually take O(1) time by replacing the head array
-when it is not yet full, just as `conj` operations usually take O(1)
-time by replacing the tail array when it is not yet full.0
+an array node, and can hold from 1 up to as many elements as other
+array nodes.  Using a head array makes it straightforward to implement
+O(1) worst case access time to the first element.  It can also be used
+to make `conjl` operations usually take O(1) time by replacing the
+head array when it is not yet full, just as `conj` operations usually
+take O(1) time by replacing the tail array when it is not yet full.
 
 When the tail array is full, `conj` takes O(log N) time creating a new
 tree that is the same as the current left-packed tree, with the tail
@@ -787,7 +787,7 @@ the head array with the rest of the B-tree, as described in section
 consecutive `conjl` operations.  As far as I can see, there is no way
 to do this and yet maintain O(log N) run time.
 
-(conjl3) Try to make the resulting tree still packed in any way after
+(conjl3) Try to make the resulting tree still packed in some way after
 many consecutive `conjl` operations, perhaps right-packed instead of
 left-packed.
 
@@ -795,29 +795,28 @@ With any of those approaches, in the return value, the new element
 given to `conjl` becomes the only element of a new head array.
 
 
-#### Approach conjl1 leads to not-packed B-trees
+#### Approach conjl1 leads to half-packed B-trees
 
 One consequence of using approach (conjl1) is that if we keep doing
 that repeatedly, the tree we end up with has most nodes at height 2
-and more with the minimum number of children children b, or b+1,
-instead of the maximum number B.  Why?  Consider the example of a tree
-with B=4 in the figure below.
+and larger with either b or b+1 children, instead of the maximum
+number B.  Why?  Consider the example of a tree with B=4 in the figure
+below.
 
 <img src="images/b-tree-order-4-repeated-prepending-by-concatenation.png" alt="Repeated prepending by concatenation leads to non-packed trees" width="800" align="middle">
 
 When we do the concatenation operation, we have a choice when B=4 to
 either have the new root node's left child with 3 children (b+1) and
-the root node's right child with 2 children (b), or vice versa.  We do
-not have a choice where new root node's right child has 4 children,
-because then there is no way to return a tree that satifies all of the
-B-tree invariants.  If B were odd, there would be only one choice that
-satisfies the invariants, where both of these children must have b
-children.
+the root node's right child with 2 children (b), or vice versa.  We
+cannot simultaneously satisfy the B-tree invariants, and make the new
+root node's right child have 4 children.  If B were odd, there would
+be only one choice that satisfies the invariants, where both of these
+nodes must have b children.
 
 If we continue prepending many more elements, we will repeatedly be
 required to make choices between the two left-most children having
-either (b+1) and b children, or b and (b+1) children when B is even.
-The most children we can leave the nodes at that are not on the left
+either (b+1) and b children, or b and (b+1) children, when B is even.
+The most children we can give to the nodes that are not on the left
 fringe is (b+1).  When B=32, that is b+1=17, just slightly over half
 "packed".
 
@@ -825,8 +824,16 @@ We could of course write code that would try to add more children to
 nodes that were not on the left fringe, perhaps increasing them up to
 B children and thus being packed.  The open question that I do not
 currently know the answer to is: Can that be done in general, while
-still guaranteeing O(log N) worst case time per prepend operation?
-
+still guaranteeing O(log N) worst case time per prepend operation?  If
+there was some additional invariants that could be proved, perhaps
+something like "if you prepend or append elements to a packed tree,
+the resulting B-tree's only nodes with less than B children are either
+on the left fringe, the right fringe, or are siblings of the left or
+right fringe nodes".  I do not now if this is true, but it seems that
+some property similar to that might be true.  If so, prepending or
+appending further elements might be done in such a way to maintain
+that invariant no matter how many prepending or appending operations
+are done later.
 
 
 #### Approach conjl2 takes O(N) time to implement `conjl` operation
